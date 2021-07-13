@@ -4,6 +4,7 @@ adjust currencyExchange method after currencies can store values
 exception handlings are another main concept that I will consider for most methods
 for now, I didn't add but we can get error message when any of related account is not present 
 ..by structuring if-else statement inside of each method if(...): if(isusd == True): ...  
+system gives an error when nothing is typed into go:
 """
 
 users = []
@@ -19,7 +20,7 @@ isgold = False
 print("Welcome to bankCore!\nPlase type regarding number for the next operation.\n")
 
 def menu():
-    print("1. Log in\n2. Create a new account\n9. Log out\n")
+    print("\n1. Log in\n2. Create a new account\n9. Log out\n")
     go = int(input("Go: "))
 
     if(go == 1):
@@ -40,10 +41,11 @@ def menu():
 def login():
     id = int(input("Identity number: ")) # unlike other programs, int is not bounded with approximately 2*10^10
     passw = input("Password: ")
+    print("")
 
     if(users["id"] == id and users["password"] == passw): 
         print("Logged in.\n")
-        print("Greetings dear {}, please type respective number to operate\n".format(users["name"]
+        print("Greetings dear {}, please type respective number to operate".format(users["name"]
         ))
         interface()
     else:
@@ -71,7 +73,7 @@ def printUser():
     # it overwrite if another user is typed 
 
 def interface():
-    print("1. Show registry informations\n2. Display existing currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n9. Return main menu\n")
+    print("\n1. Show registry informations\n2. Display existing currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n9. Return main menu\n")
     go = int(input("Go: "))
 
     if(go == 1):
@@ -127,7 +129,7 @@ def tryAccount():
     go = int(input("Go: "))
 
     if(go == 1):
-        print("\nDear {}, you have {} tl in your Turkish Lira account.\n".format(users["name"], str(tl))) 
+        print("\nDear {}, you have {} tl in your Turkish Lira account.".format(users["name"], str(tl))) 
 
     elif(go == 2):
         
@@ -244,76 +246,113 @@ def currencyExchange():
     from user to imply it """ 
     print("Please state the currency that you will give.")
     xlira = str(input("tl / usd / eur / gold: "))
+    print("")
     print("Please state the currency that you will get.")
     ylira = str(input("tl / usd / eur / gold: "))
+    print("")
     print(f"Please type the amount of {xlira.upper()} that you would like to exchange to {ylira.upper()}")
     money = float(input(f"{xlira.upper()} to {ylira.upper()} with the amount of: "))
-    
+    print("")
+
     global tl, usd, eur, gold
     """ for now, I didn't add but we can get error message when any of related account is not present 
     by structuring if-else statement inside of each method if(...): if(isusd == True): ...  """
-    if(xlira == "tl" and ylira == "usd" and money <= tl and isusd == True):
-        tl -= money
-        addmoney = money / 8.66
-        usd += addmoney
-        print(f"Current balance of {xlira.upper()}: {tl}, {ylira.upper()}: {usd}\n") 
-    elif(xlira == "tl" and ylira == "eur" and money <= tl and iseur == True):
-        tl -= money
-        addmoney = money / 10.29
-        eur += addmoney
-        print(f"Current balance of {xlira.upper()}: {tl}, {ylira.upper()}: {eur}\n")    
-    elif(xlira == "tl" and ylira == "gold" and money <= tl and isgold == True):
-        tl -= money
-        addmoney = money / 500.29
-        gold += addmoney
-        print(f"Current balance of {xlira.upper()}: {tl}, {ylira.capitalize()}: {gold} gram(s)\n")      
-    elif(xlira == "usd" and ylira == "tl" and money <= usd and isusd == True):
-        usd -= money
-        addmoney = money * 8.66
-        tl += addmoney
-        print(f"Current balance of {xlira.upper()}: {usd}, {ylira.upper()}: {tl}\n")        
-    elif(xlira == "usd" and ylira == "eur" and money <= usd and isusd == True and iseur == True):
-        usd -= money
-        addmoney = money / 1.19
-        eur += addmoney  
-        print(f"Current balance of {xlira.upper()}: {usd}, {ylira.upper()}: {eur}\n") 
-    elif(xlira == "usd" and ylira == "gold" and money <= usd and isusd == True and isgold == True):
-        usd -= money
-        addmoney = money / 57.76
-        gold += addmoney  
-        print(f"Current balance of {xlira.upper()}: {usd}, {ylira.capitalize()}: {gold} gram(s)\n")           
-    elif(xlira == "eur" and ylira == "tl" and money <= eur and iseur == True):
-        eur -= money
-        addmoney = money * 10.29
-        tl += addmoney     
-        print(f"Current balance of {xlira.upper()}: {eur}, {ylira.upper()}: {tl}\n")   
-    elif(xlira == "eur" and ylira == "usd" and money <= eur and iseur == True and isusd == True):
-        eur -= money
-        addmoney = money * 1.19
-        usd += addmoney
-        print(f"Current balance of {xlira.upper()}: {eur}, {ylira.upper()}: {usd}\n") 
-    elif(xlira == "eur" and ylira == "gold" and money <= eur and iseur == True and isgold == True):
-        eur -= money
-        addmoney = money / 48.62
-        gold += addmoney  
-        print(f"Current balance of {xlira.upper()}: {eur}, {ylira.capitalize()}: {gold} gram(s)\n")      
-    elif(xlira == "gold" and ylira == "tl" and money <= gold and isgold == True):
-        gold -= money
-        addmoney = money * 500.20
-        tl += addmoney  
-        print(f"Current balance of {xlira.capitalize()}: {gold} gram(s), {ylira.upper()}: {tl}\n")
-    elif(xlira == "gold" and ylira == "usd" and money <= gold and isgold == True and isusd == True):
-        gold -= money
-        addmoney = money * 57.77
-        usd += addmoney  
-        print(f"Current balance of {xlira.capitalize()}: {gold} gram(s), {ylira.upper()}: {usd}\n")
-    elif(xlira == "gold" and ylira == "eur" and money <= gold and isgold == True and iseur == True):
-        gold -= money
-        addmoney = money * 48.61
-        eur += addmoney  
-        print(f"Current balance of {xlira.capitalize()}: {gold} gram(s), {ylira.upper()}: {eur}\n")    
-    # elif(isusd == True and iseur == True and isgold == True):
-    #     pass
+    if(xlira == "tl" and ylira == "usd"):
+        if(isusd == True and money <= tl):
+            tl -= money
+            addmoney = money / 8.66
+            usd += addmoney
+            print(f"Current balance of {xlira.upper()}: {tl}, {ylira.upper()}: {usd}")
+        else:
+            checkBool(True, "TRY", isusd, "USD", tl, money) 
+    elif(xlira == "tl" and ylira == "eur"):
+        if(iseur == True and money <= tl):    
+            tl -= money
+            addmoney = money / 10.29
+            eur += addmoney
+            print(f"Current balance of {xlira.upper()}: {tl}, {ylira.upper()}: {eur}")
+        else:
+            checkBool(True, "TRY", iseur, "Euro", tl, money)    
+    elif(xlira == "tl" and ylira == "gold"):
+        if(isgold == True and money <= tl):     
+            tl -= money
+            addmoney = money / 500.29
+            gold += addmoney
+            print(f"Current balance of {xlira.upper()}: {tl}, {ylira.capitalize()}: {gold} gram(s)") 
+        else:
+            checkBool(True, "TRY", isgold, "Gold", tl, money)     
+    elif(xlira == "usd" and ylira == "tl"):
+        if(isusd == True and money <= usd):    
+            usd -= money
+            addmoney = money * 8.66
+            tl += addmoney
+            print(f"Current balance of {xlira.upper()}: {usd}, {ylira.upper()}: {tl}") # I erased \n
+        else:
+            checkBool(isusd, "USD", True, "TRY", usd, money)        
+    elif(xlira == "usd" and ylira == "eur"):
+        if(isusd == True and iseur == True and money <= usd):
+            usd -= money
+            addmoney = money / 1.19
+            eur += addmoney  
+            print(f"Current balance of {xlira.upper()}: {usd}, {ylira.upper()}: {eur}\n")
+        else:
+            checkBool(isusd, "USD", iseur, "Euro", usd, money) 
+    elif(xlira == "usd" and ylira == "gold"):
+        if(isusd == True and isgold == True and money <= usd):   
+            usd -= money
+            addmoney = money / 57.76
+            gold += addmoney  
+            print(f"Current balance of {xlira.upper()}: {usd}, {ylira.capitalize()}: {gold} gram(s)\n") 
+        else:
+            checkBool(isusd, "USD", isgold, "Gold", usd, money)          
+    elif(xlira == "eur" and ylira == "tl"):
+        if(iseur == True and money <= eur):    
+            eur -= money
+            addmoney = money * 10.29
+            tl += addmoney     
+            print(f"Current balance of {xlira.upper()}: {eur}, {ylira.upper()}: {tl}\n")
+        else:
+            checkBool(iseur, "Euro", True, "TRY", eur, money)   
+    elif(xlira == "eur" and ylira == "usd"):
+        if(iseur == True and isusd == True and money <= eur):    
+            eur -= money
+            addmoney = money * 1.19
+            usd += addmoney
+            print(f"Current balance of {xlira.upper()}: {eur}, {ylira.upper()}: {usd}\n")
+        else:
+            checkBool(iseur, "Euro", isusd, "USD", eur, money) 
+    elif(xlira == "eur" and ylira == "gold"):
+        if(iseur == True and isgold == True and money <= eur):    
+            eur -= money
+            addmoney = money / 48.62
+            gold += addmoney  
+            print(f"Current balance of {xlira.upper()}: {eur}, {ylira.capitalize()}: {gold} gram(s)\n")  
+        else:
+            checkBool(iseur, "Euro", isgold, "Gold", eur, money)    
+    elif(xlira == "gold" and ylira == "tl"):
+        if(isgold == True and money <= gold):    
+            gold -= money
+            addmoney = money * 500.20
+            tl += addmoney  
+            print(f"Current balance of {xlira.capitalize()}: {gold} gram(s), {ylira.upper()}: {tl}\n")
+        else:
+            checkBool(isgold, "Gold", True, "TRY", gold, money)
+    elif(xlira == "gold" and ylira == "usd"):
+        if(isgold == True and isusd == True and money <= gold):    
+            gold -= money
+            addmoney = money * 57.77
+            usd += addmoney  
+            print(f"Current balance of {xlira.capitalize()}: {gold} gram(s), {ylira.upper()}: {usd}\n")
+        else:
+            checkBool(isgold, "Gold", isusd, "USD", gold, money)        
+    elif(xlira == "gold" and ylira == "eur"):
+        if(isgold == True and iseur == True and money <= gold):    
+            gold -= money
+            addmoney = money * 48.61
+            eur += addmoney  
+            print(f"Current balance of {xlira.capitalize()}: {gold} gram(s), {ylira.upper()}: {eur}\n")  
+        else:
+            checkBool(isgold, "Gold", iseur, "Euro", gold, money)  
     else:
         print("Operation failed.\n") # fit that into conditions
         interface()
@@ -327,25 +366,25 @@ def createCurrency():
     global isusd, iseur, isgold 
     if(go == "1"):
         psw = input("Please type your password to create a USD balance: ")
-        print("\n")
+        print("")
         if(psw == users["password"]):
             isusd = True
-            print("US Dollar account is created!\n")
+            print("USD account is created!\n")
         else:
             print("Password is incorrect, going back to main screen\n")
             interface()
     elif(go == "2"):
         psw = input("Please type your password to create a EUR balance: ")
-        print("\n")
+        print("")
         if(psw == users["password"]):
             iseur = True
-            print("Euro account is created!\n")
+            print("Euro account is created!")
         else:
             print("Password is incorrect, going back to main screen\n")
             interface()
     elif(go == "3"):
         psw = input("Please type your password to create a Gold account: ")
-        print("\n")
+        print("")
         if(psw == users["password"]):
             isgold = True
             print("Gold account is created!\n")
@@ -355,6 +394,15 @@ def createCurrency():
     else:
         print("Please type a number among 1 - 3\n") 
         interface()
+    
+def checkBool(bool1, m1, bool2, m2, unit, mny):
+    if(bool1 == False):
+        print(f"You do NOT have {m1} account for exchange operations")
+    if(bool2 == False):
+        print(f"You do NOT have {m2} account for exchange operations")
+    if(unit <= mny):
+        print(f"You do NOT have sufficient {m1} to exchange it with {m2}") # make first two if overwrite third one
+    # print("") # is it surplus?
     
 
 #-----Execution-----#

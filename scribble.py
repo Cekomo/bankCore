@@ -73,7 +73,7 @@ def printUser():
     # it overwrite if another user is typed 
 
 def interface():
-    print("\n1. Show registry informations\n2. Display existing currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n9. Return main menu\n")
+    print("1. Show registry informations\n2. Display existing currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n9. Return main menu\n")
     go = int(input("Go: "))
 
     if(go == 1):
@@ -395,13 +395,16 @@ def createCurrency():
         print("Please type a number among 1 - 3\n") 
         interface()
     
-def checkBool(bool1, m1, bool2, m2, unit, mny):
+def checkBool(bool1, m1, bool2, m2, unit, mny): # it works fine but when tl comes, it also show money amount even if 
+    #.. an account doesn't exist
     if(bool1 == False):
         print(f"You do NOT have {m1} account for exchange operations")
+    elif(unit <= mny):
+        print(f"You do NOT have sufficient {m1} to exchange it with {m2}")
     if(bool2 == False):
         print(f"You do NOT have {m2} account for exchange operations")
-    if(unit <= mny):
-        print(f"You do NOT have sufficient {m1} to exchange it with {m2}") # make first two if overwrite third one
+    elif(unit <= mny):
+        print(f"You do NOT have sufficient {m1} to exchange it with {m2}") 
     # print("") # is it surplus?
     
 

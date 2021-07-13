@@ -5,6 +5,7 @@ exception handlings are another main concept that I will consider for most metho
 for now, I didn't add but we can get error message when any of related account is not present 
 ..by structuring if-else statement inside of each method if(...): if(isusd == True): ...  
 system gives an error when nothing is typed into go:
+checkBool() works fine but when tl comes, it also show money amount even if an account doesn't exist
 """
 
 users = []
@@ -54,13 +55,26 @@ def login():
 
 def register():
     print("Please type your informations correctly that is asked.")
+    isname, issname, isid, ispassw = True
     
+    print("Your name should have in between 3 - 13 characters. It can NOT have any digit or special character\n")
     name = input("Name: ")
+    nameCorrection(isname, name, 3, 13)
+    
+    print("Your surname should have in between 2 - 15 characters. It can NOT have any digit or special character\n")
     sname = input("Surname: ")
+    nameCorrection(issname, sname, 2, 15)
+      
+    print("Your identity number should only have 11 digits\n")
     id = int(input("Identity number: ")) 
+    idCorrection()
+    
+    print("Your password should be in between 8 - 15 characters. Only letters and digits are allowed\n")
     passw = input("Password: ")
+    passwCorrection()
 
-    createUser(name, sname, id, passw)
+    if(isname == True and issname == True and isid == True and ispassw == True):
+        createUser(name, sname, id, passw)
 
 def createUser(name, sname, id, passw):
     global users 
@@ -406,6 +420,26 @@ def checkBool(bool1, m1, bool2, m2, unit, mny): # it works fine but when tl come
     elif(unit <= mny):
         print(f"You do NOT have sufficient {m1} to exchange it with {m2}") 
     # print("") # is it surplus?
+    
+def nameCorrection(isuser, name, minnum, maxnum):
+    specialChar = ["!","'","^","+","%","&","/","(",")","=","?","_","-","*","|","\"","}","]","[","{","½","$","#","£",">","<",":",".","`",";",",","<","é","æ","ß","@","€","¨","~","´"]
+    
+    if(len(name) > maxnum or len(name) < minnum):
+        isuser = False
+        print("Your name can NOT be less than three and more than 13 characters\n")
+    elif any(char.isdigit() for char in name or char in specialChar for char in name): # check if it is okay
+        isuser = False
+        print("Your name can NOT have digit(s) or special character(s)\n")
+    if(isuser == True):
+        return name
+    else:
+        register()
+
+def idCorrection(): # will be added
+    pass
+
+def passwCorrection(): # will be added
+    pass
     
 
 #-----Execution-----#

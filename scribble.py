@@ -18,6 +18,12 @@ isusd = False
 iseur = False
 isgold = False
 
+isname = True
+issname = True
+isid = True
+ispassw = True
+bool1 = False
+
 print("Welcome to bankCore!\nPlase type regarding number for the next operation.\n")
 
 def menu():
@@ -40,49 +46,50 @@ def menu():
         menu()
         
 def login():
-    id = int(input("Identity number: ")) # unlike other programs, int is not bounded with approximately 2*10^10
+    id = input("Identity number: ") # unlike other programs, int is not bounded with approximately 2*10^10
     passw = input("Password: ")
     print("")
 
     if(users["id"] == id and users["password"] == passw): 
-        print("Logged in.\n")
-        print("Greetings dear {}, please type respective number to operate".format(users["name"]
-        ))
+        print("Logged in.")
+        print("Greetings dear {}, please type respective number to operate\n".format(users["name"]))
         interface()
     else:
         print("Identity number or password is incorrect.")
 
 
-def register():
-    print("Please type your informations correctly that is asked.")
-    isname, issname, isid, ispassw = True
+def register(): # whichever i type incorrect input, it asked when all are typed correct from the next again
+    print("Please type your informations correctly that is asked. (Type \"9\" to go back)")
     
     print("Your name should have in between 3 - 13 characters. It can NOT have any digit or special character\n")
     name = input("Name: ")
-    turnBack(name, interface)
-    nameCorrection(isname, name, 3, 13)
-    
+    turnBack(name, menu)
+    nameCorrection(isname, name, 3, 13, "Name")
+
     print("Your surname should have in between 2 - 15 characters. It can NOT have any digit or special character\n")
     sname = input("Surname: ")
-    turnBack(sname, interface)
-    nameCorrection(issname, sname, 2, 15)
+    turnBack(sname, menu)
+    nameCorrection(issname, sname, 2, 15, "Surname")
       
     print("Your identity number should only have 11 digits\n")
-    id = int(input("Identity number: ")) 
-    turnBack(id, interface)
-    idCorrection()
+    id = input("Identity number: ") # that was int
+    turnBack(id, menu)
+    idCorrection(isid, id)
     
     print("Your password should be in between 8 - 15 characters. Only letters and digits are allowed\n")
     passw = input("Password: ")
-    turnBack(passw, interface)
-    passwCorrection()
-
+    turnBack(passw, menu)
+    passwCorrection(ispassw, passw) # when I type wrong input and type for correct, it prints ln 83 for two times
+    
     if(isname == True and issname == True and isid == True and ispassw == True):
-        createUser(name, sname, id, passw)
+        print("Your account is created")
+        createUser(name, sname, id, passw) # i think it does not save the inputs
+    else: 
+        register()
 
-def createUser(name, sname, id, passw):
+def createUser(name, sname, id, upassw):
     global users 
-    users = {"name": name.capitalize(), "surname": sname.capitalize(), "id": id, "password": passw}
+    users = {"name": name.capitalize(), "surname": sname.capitalize(), "id": id, "password": upassw}
     return users
 
 def printUser(): 
@@ -425,9 +432,9 @@ def checkBool(bool1, m1, bool2, m2, unit, mny): # it works fine but when tl come
         print(f"You do NOT have sufficient {m1} to exchange it with {m2}") 
     # print("") # is it surplus?
     
-def nameCorrection(isuser, name, minnum, maxnum):
+def nameCorrection(isuser, name, minnum, maxnum, nm):
     specialChar = ["!","'","^","+","%","&","/","(",")","=","?","_","-","*","|","\"","}","]","[","{","½","$","#","£",">","<",":",".","`",";",",","<","é","æ","ß","@","€","¨","~","´"]
-    
+    isuser = True
     if(len(name) > maxnum or len(name) < minnum):
         isuser = False
         print("Your name can NOT be less than three and more than thirteen characters\n")
@@ -435,45 +442,55 @@ def nameCorrection(isuser, name, minnum, maxnum):
         isuser = False
         print("Your name can NOT have digit(s) or special character(s)\n")
     if(isuser == True):
-        return name
+        return isuser
     else:
-        register()
+        name = input(f"{nm}: ")
+        nameCorrection(isuser, name, minnum, maxnum, nm)
+    
 
-def idCorrection(idnum): 
+def idCorrection(isuser, idnum): 
     nums = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-    if not len(idnum) == 11:
-        isid = False
+    isuser = True
+    if not(int(len(idnum)) == 11):
+        isuser = False
         print("Identity number must have 11 digits\n")
     elif not all(char in nums for char in idnum):
-        isid = False
+        isuser = False
         print("Identity number only consist of integers\n")
-    if(isid == True):
-        return idnum
+    if(isuser == True):
+        return isuser
     else:
-        register()
+        id = input("Identity number: ")
+        idCorrection(isuser, id)
+    
 
-def passwCorrection(passw): 
-    if(len(passw) > 15 or len(passw) < 8):
-        ispassw = False
+def passwCorrection(isuser, psw): 
+    isuser = True
+    if(len(psw) > 15 or len(psw) < 8):
+        isuser = False
         print("Your password can NOT be less than eigth and more than fifteen characters\n")
-    elif not any(char.isdigit() for char in passw):
-        ispassw = False
+    elif not any(char.isdigit() for char in psw):
+        isuser = False
         print("Password must have at least one digit\n")
-    elif not any(char.isupper() for char in passw):
+    elif not any(char.isupper() for char in psw):
         print("Password must have at least one upper character\n")
-        ispassw = False
-    elif not any(char.islower() for char in passw):
+        isuser = False
+    elif not any(char.islower() for char in psw):
         print("Password must have at least one lower character*n")
-        ispassw = False  
-    if(ispassw == True):
-        return ispassw
+        isuser = False 
+    if(isuser == True):
+        return isuser
     else:
-        register()
-        
+        passw = input("Password: ")
+        passwCorrection(isuser, passw)
+    
+
 def turnBack(inputVar, method): 
     # in case user type "9", system return stated function which is generally previous one
     if(inputVar == "9"):
         method()
+    else:
+        pass
     
 
 #-----Execution-----#

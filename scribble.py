@@ -59,18 +59,22 @@ def register():
     
     print("Your name should have in between 3 - 13 characters. It can NOT have any digit or special character\n")
     name = input("Name: ")
+    turnBack(name, interface)
     nameCorrection(isname, name, 3, 13)
     
     print("Your surname should have in between 2 - 15 characters. It can NOT have any digit or special character\n")
     sname = input("Surname: ")
+    turnBack(sname, interface)
     nameCorrection(issname, sname, 2, 15)
       
     print("Your identity number should only have 11 digits\n")
     id = int(input("Identity number: ")) 
+    turnBack(id, interface)
     idCorrection()
     
     print("Your password should be in between 8 - 15 characters. Only letters and digits are allowed\n")
     passw = input("Password: ")
+    turnBack(passw, interface)
     passwCorrection()
 
     if(isname == True and issname == True and isid == True and ispassw == True):
@@ -426,7 +430,7 @@ def nameCorrection(isuser, name, minnum, maxnum):
     
     if(len(name) > maxnum or len(name) < minnum):
         isuser = False
-        print("Your name can NOT be less than three and more than 13 characters\n")
+        print("Your name can NOT be less than three and more than thirteen characters\n")
     elif any(char.isdigit() for char in name or char in specialChar for char in name): # check if it is okay
         isuser = False
         print("Your name can NOT have digit(s) or special character(s)\n")
@@ -435,11 +439,41 @@ def nameCorrection(isuser, name, minnum, maxnum):
     else:
         register()
 
-def idCorrection(): # will be added
-    pass
+def idCorrection(idnum): 
+    nums = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    if not len(idnum) == 11:
+        isid = False
+        print("Identity number must have 11 digits\n")
+    elif not all(char in nums for char in idnum):
+        isid = False
+        print("Identity number only consist of integers\n")
+    if(isid == True):
+        return idnum
+    else:
+        register()
 
-def passwCorrection(): # will be added
-    pass
+def passwCorrection(passw): 
+    if(len(passw) > 15 or len(passw) < 8):
+        ispassw = False
+        print("Your password can NOT be less than eigth and more than fifteen characters\n")
+    elif not any(char.isdigit() for char in passw):
+        ispassw = False
+        print("Password must have at least one digit\n")
+    elif not any(char.isupper() for char in passw):
+        print("Password must have at least one upper character\n")
+        ispassw = False
+    elif not any(char.islower() for char in passw):
+        print("Password must have at least one lower character*n")
+        ispassw = False  
+    if(ispassw == True):
+        return ispassw
+    else:
+        register()
+        
+def turnBack(inputVar, method): 
+    # in case user type "9", system return stated function which is generally previous one
+    if(inputVar == "9"):
+        method()
     
 
 #-----Execution-----#

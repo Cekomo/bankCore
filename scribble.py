@@ -6,6 +6,7 @@ for now, I didn't add but we can get error message when any of related account i
 ..by structuring if-else statement inside of each method if(...): if(self.isusd == True): ...  
 system gives an error when nothing is typed into go:
 checkBool() works fine but when tl comes, it also show money amount even if an account doesn't exist
+implement a structure that shows only existing accounts in that list (optional) interface --> go: 2
 """
 class BankCore:
     def __init__(self):
@@ -23,11 +24,12 @@ class BankCore:
     print("Welcome to bankCore!\nPlase type regarding number for the next operation.\n")
 
     def menu(self):
-        print("\n1. Log in\n2. Create a new account\n9. Exit\n")
+        print("1. Log in\n2. Create a new account\n9. Exit\n")
         go = int(input("Go: "))
+        print("")
 
         if(go == 1):
-            print("\nPlease type your identity number and password.")
+            print("Please type your identity number and password.")
             self.login()
             self.menu()
         elif(go == 2):
@@ -58,24 +60,24 @@ class BankCore:
     def register(self): # whichever i type incorrect input, it asked when all are typed correct from the next again
         print("Please type your informations correctly that is asked. (Type \"9\" to go back)")
         
-        print("Your name should have in between 3 - 13 characters. It can NOT have any digit or special character\n")
+        print("Your name should have in between 2 - 13 characters. It can NOT have any digit or special character")
         #turnBack(name, menu)
         self.nameCorrection()
 
-        print("Your surname should have in between 2 - 15 characters. It can NOT have any digit or special character\n")  
+        print("Your surname should have in between 2 - 15 characters. It can NOT have any digit or special character")  
         #turnBack(sname, menu)
         self.snameCorrection()
         
-        print("Your identity number should only have 11 digits\n")
+        print("Your identity number should only have 11 digits")
         #turnBack(id, menu)
         self.idCorrection()
         
-        print("Your password should be in between 8 - 15 characters. Only letters and digits are allowed\n")   
+        print("Your password should be in between 8 - 15 characters. Only letters and digits are allowed")   
         #turnBack(passw, menu)
-        self.passwCorrection() # when I type wrong input and type for correct, it prints ln 83 for two times
+        self.passwCorrection() 
         
-        print("Your account is created")
-        self.createUser(self.name, self.sname, self.id, self.passw) # i think it does not save the inputs
+        print("Your account is created\n")
+        self.createUser(self.name, self.sname, self.id, self.passw) 
 
 
     def createUser(self, name, sname, id, upassw):
@@ -84,20 +86,23 @@ class BankCore:
         return self.users
 
     def printUser(self): 
-        print("\nInformations of the user are listed.")
+        print("Informations of the user are listed.")
         print("Name: {}\nSurname: {}\nIdentity number: {}\nPassword: {}\n".format(self.users["name"], self.users["surname"], self.users["id"], self.users["password"]))
         # it overwrite if another user is typed 
 
     def interface(self):
         print("1. Show registry informations\n2. Display existing currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n9. Log out\n")
         go = int(input("Go: "))
+        print("")
 
         if(go == 1):
             self.printUser()
 
         elif(go == 2):
+            # implement a structure that shows only existing accounts in that list (optional)
             print("1. TRY account\n2. USD Account\n3. EUR Account\n4. Gold Account\n")
             go = int(input("Go: "))
+            print("")
             if(go == 1):
                 self.tryAccount()
             elif(go == 2):
@@ -141,20 +146,21 @@ class BankCore:
 
     def tryAccount(self):
         self.tl
-        print(f"\n1. Display currency amount\n2. Deposit TRY\n3. Withdraw TRY\n9. Return main account\n")
+        print(f"1. Display currency amount\n2. Deposit TRY\n3. Withdraw TRY\n9. Return main account\n")
         go = int(input("Go: "))
+        print("")
 
         if(go == 1):
-            print("\nDear {}, you have {} tl in your Turkish Lira account.".format(self.users["name"], str(self.tl))) 
+            print("Dear {}, you have {} tl in your Turkish Lira account.\n".format(self.users["name"], str(self.tl))) 
 
         elif(go == 2):
-            print("\nPlease type the amount that you would like to deposit.\n")
+            print("Please type the amount that you would like to deposit.\n")
             addtl = float(input("TRY: "))
             self.tl += addtl
-            print(f"TRY balance is updated as {self.tl} tl\n.")       
+            print(f"TRY balance is updated as {self.tl} tl\n")       
 
         elif(go == 3): 
-            print("\nPlease type the amount that you would like to withdraw.")
+            print("Please type the amount that you would like to withdraw.")
             taketl = float(input("TRY: "))
             self.tl -= taketl 
             
@@ -163,7 +169,7 @@ class BankCore:
             
             else:
                 self.tl += taketl 
-                print(f"\nYou have insufficient currency to withdraw {taketl} tl.\nNo currency is withdrawn.\n")
+                print(f"You have insufficient currency to withdraw {taketl} tl.\nNo currency is withdrawn.\n")
 
         elif(go == 9):
             self.interface()
@@ -172,20 +178,21 @@ class BankCore:
 
     def usdAccount(self):
         self.usd
-        print(f"\n1. Display currency amount\n2. Deposit USD\n3. Withdraw USD\n9. Return main account\n")
+        print(f"1. Display currency amount\n2. Deposit USD\n3. Withdraw USD\n9. Return main account\n")
         go = int(input("Go: "))
+        print("")
 
         if(go == 1):
-            print("\nDear {}, you have {} dollar(s) in your US Dollar account.\n".format(self.users["name"], str(self.usd))) 
+            print("Dear {}, you have {} dollar(s) in your US Dollar account.\n".format(self.users["name"], str(self.usd))) 
 
         elif(go == 2):
-            print("\nPlease type the amount that you would like to deposit.\n")
+            print("Please type the amount that you would like to deposit.\n")
             addusd = float(input("USD: "))
             self.usd += addusd
             print(f"USD balance is updated as {self.usd} dollars\n.")       
 
         elif(go == 3): 
-            print("\nPlease type the amount that you would like to withdraw.")
+            print("Please type the amount that you would like to withdraw.")
             takeusd = float(input("USD: "))
             self.usd -= takeusd 
             
@@ -194,7 +201,7 @@ class BankCore:
             
             else:
                 self.usd += takeusd 
-                print(f"\nYou have insufficient currency to withdraw {takeusd} dollars.\nNo currency is withdrawn.\n")
+                print(f"You have insufficient currency to withdraw {takeusd} dollars.\nNo currency is withdrawn.\n")
 
         elif(go == 9):
             self.interface()
@@ -203,20 +210,21 @@ class BankCore:
 
     def eurAccount(self):
         self.eur
-        print(f"\n1. Display currency amount\n2. Deposit EUR\n3. Withdraw EUR\n9. Return main account\n")
+        print(f"1. Display currency amount\n2. Deposit EUR\n3. Withdraw EUR\n9. Return main account\n")
         go = int(input("Go: "))
+        print("")
 
         if(go == 1):
-            print("\nDear {}, you have {} euro in your Euro account.\n".format(self.users["name"], str(self.eur))) 
+            print("Dear {}, you have {} euro in your Euro account.\n".format(self.users["name"], str(self.eur))) 
 
         elif(go == 2):
-            print("\nPlease type the amount that you would like to deposit.\n")
+            print("Please type the amount that you would like to deposit.\n")
             addeur = float(input("EUR: "))
             self.eur += addeur
             print(f"EUR balance is updated as {self.eur} euro\n.")       
 
         elif(go == 3): 
-            print("\nPlease type the amount that you would like to withdraw.")
+            print("Please type the amount that you would like to withdraw.")
             takeeur = float(input("EUR: "))
             self.eur -= takeeur 
             
@@ -225,7 +233,7 @@ class BankCore:
             
             else:
                 self.eur += takeeur 
-                print(f"\nYou have insufficient currency to withdraw {takeeur} euro.\nNo currency is withdrawn.\n")
+                print(f"You have insufficient currency to withdraw {takeeur} euro.\nNo currency is withdrawn.\n")
 
         elif(go == 9):
             self.interface()
@@ -239,17 +247,18 @@ class BankCore:
         print("\nGold purchasing and sale operations are conducted in currency exchange tab\n")
         print("1. Display gold amount\n2. Gold stock sale price\n3. Gold stock puchasing price\n9. Return main account\n")
         go = input("Go: ")
+        print("")
 
         if(go == "1"):
-            print("\nDear {}, you have {} gram(s) in your Gold account.\n".format(self.users["name"], str(self.gold))) 
+            print("Dear {}, you have {} gram(s) in your Gold account.\n".format(self.users["name"], str(self.gold))) 
             # clip decimals in 2 or 3, there are 14 of them and it does not seem okay
 
         elif(go == "2"): # update it so that it depends on currencies directly rather than static numbers
-            print(f"\nSale price of gold is:\nTRY: {500.20}\nUSD: {500.20/8.66}\nEUR: {500.20/10.29}\n")    
+            print(f"Sale price of gold is:\nTRY: {500.20}\nUSD: {500.20/8.66}\nEUR: {500.20/10.29}\n")    
             # clip the decimals
             
         elif(go == "3"): # update it so that it depends on currencies directly rather than static numbers
-            print(f"\nPurchase price of gold is:\nTRY: {500.28}\nUSD: {500.28/8.66}\nEUR: {500.28/10.29}\n") 
+            print(f"Purchase price of gold is:\nTRY: {500.28}\nUSD: {500.28/8.66}\nEUR: {500.28/10.29}\n") 
             # clip the decimals
 
         elif(go == "9"):
@@ -281,7 +290,7 @@ class BankCore:
             else:
                 self.checkBool(True, "TRY", self.isusd, "USD", self.tl, money) 
         elif(xlira == "tl" and ylira == "eur"):
-            if(iseur == True and money <= self.tl):    
+            if(self.iseur == True and money <= self.tl):    
                 self.tl -= money
                 addmoney = money / 10.29
                 self.eur += addmoney
@@ -370,13 +379,14 @@ class BankCore:
                 self.checkBool(self.isgold, "Gold", self.iseur, "Euro", self.gold, money)  
         else:
             print("Operation failed.\n") # fit that into conditions
-            interface(self)
+            self.interface()
         
     def createCurrency(self):
         
         print("Please select an account to generate\n")
         print("1. USD Account\n2. EUR Account\n3. Gold Account\n")
         go = input("Go: ")
+        print("")
 
         self.isusd, self.iseur, self.isgold 
         if(go == "1"):
@@ -416,23 +426,25 @@ class BankCore:
         if(unit <= mny):
             bool3 = True
         if(bool1 == False):
-            print(f"You do NOT have {m1} account for exchange operations\n")
+            print(f"You do NOT have {m1} account for exchange operations")
             bool3 = False
         if(bool2 == False):
-            print(f"You do NOT have {m2} account for exchange operations\n") 
+            print(f"You do NOT have {m2} account for exchange operations") 
             bool3 = False
         if(bool3 == True):
             print(f"You do NOT have sufficient {m1} to exchange it with {m2}\n")
-        # print("") # is it surplus?
+        print("") # is it surplus?
         
     def nameCorrection(self):
         self.name = input("Name: ")
+        print("")
+
         specialChar = ["!","'","^","+","%","&","/","(",")","=","?","_","-","*","|","\"","}","]","[","{","½","$","#","£",">","<",":",".","`",";",",","<","é","æ","ß","@","€","¨","~","´"]
         isuser = True
         if(len(self.name) > 13 or len(self.name) < 2):
             isuser = False
             print("Your name can NOT be less than two and more than thirteen characters\n")
-        elif any(char.isdigit() for char in self.name or char in specialChar for char in self.name): # check if it is okay
+        elif any(char.isdigit() for char in self.name or specialChar for char in self.name): # check if it is okay
             isuser = False
             print("Your name can NOT have digit(s) or special character(s)\n")
         if(isuser == True):
@@ -442,12 +454,14 @@ class BankCore:
 
     def snameCorrection(self):
         self.sname = input("Surname: ")
+        print("")
+
         specialChar = ["!","'","^","+","%","&","/","(",")","=","?","_","-","*","|","\"","}","]","[","{","½","$","#","£",">","<",":",".","`",";",",","<","é","æ","ß","@","€","¨","~","´"]
         isuser = True
         if(len(self.sname) > 15 or len(self.sname) < 2):
             isuser = False
             print("Your name can NOT be less than three and more than thirteen characters\n")
-        elif any(char.isdigit() for char in self.sname or char in specialChar for char in self.sname): # check if it is okay
+        elif any(char.isdigit() for char in self.sname or specialChar for char in self.sname): # check if it is okay
             isuser = False
             print("Your surname can NOT have digit(s) or special character(s)\n")
         if(isuser == True):
@@ -457,6 +471,7 @@ class BankCore:
 
     def idCorrection(self): 
         self.id = input("Identity number: ")
+        print("")
         nums = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
         isuser = True
         if not(int(len(self.id)) == 11):
@@ -472,6 +487,8 @@ class BankCore:
 
     def passwCorrection(self): 
         self.passw = input("Password: ")
+        print("")
+
         isuser = True
         if(len(self.passw) > 15 or len(self.passw) < 8):
             isuser = False
@@ -502,4 +519,3 @@ class BankCore:
 exe = BankCore()
 exe.menu()
 #-----Execution-----#
-

@@ -412,14 +412,17 @@ class BankCore:
         
     def checkBool(self, bool1, m1, bool2, m2, unit, mny): # it works fine but when tl comes, it also show money amount even if 
         #.. an account doesn't exist
+        bool3 = False
+        if(unit <= mny):
+            bool3 = True
         if(bool1 == False):
             print(f"You do NOT have {m1} account for exchange operations\n")
-        elif(unit <= mny):
-            print(f"You do NOT have sufficient {m1} to exchange it with {m2}\n")
+            bool3 = False
         if(bool2 == False):
-            print(f"You do NOT have {m2} account for exchange operations\n")
-        elif(unit <= mny):
-            print(f"You do NOT have sufficient {m1} to exchange it with {m2}\n") 
+            print(f"You do NOT have {m2} account for exchange operations\n") 
+            bool3 = False
+        if(bool3 == True):
+            print(f"You do NOT have sufficient {m1} to exchange it with {m2}\n")
         # print("") # is it surplus?
         
     def nameCorrection(self):
@@ -428,7 +431,7 @@ class BankCore:
         isuser = True
         if(len(self.name) > 13 or len(self.name) < 2):
             isuser = False
-            print("Your name can NOT be less than three and more than thirteen characters\n")
+            print("Your name can NOT be less than two and more than thirteen characters\n")
         elif any(char.isdigit() for char in self.name or char in specialChar for char in self.name): # check if it is okay
             isuser = False
             print("Your name can NOT have digit(s) or special character(s)\n")
@@ -450,7 +453,7 @@ class BankCore:
         if(isuser == True):
             return isuser
         else:
-            self.nameCorrection()
+            self.snameCorrection()
 
     def idCorrection(self): 
         self.id = input("Identity number: ")

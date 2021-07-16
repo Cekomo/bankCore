@@ -8,6 +8,7 @@ system gives an error when nothing is typed into go:
 checkBool() works fine but when tl comes, it also show money amount even if an account doesn't exist
 implement a structure that shows only existing accounts in that list (optional) interface --> go: 2
 make method for account screen to manipulate better
+I can code a method that ask for permission to the user after any operation about implementation 
 """
 class BankCore:
     def __init__(self):
@@ -55,7 +56,7 @@ class BankCore:
             print("Greetings dear {}, please type respective number to operate\n".format(self.users["name"]))
             self.interface()
         else:
-            print("Identity number or password is incorrect.")
+            print("Identity number or password is incorrect.\n")
 
 
     def register(self): # whichever i type incorrect input, it asked when all are typed correct from the next again
@@ -271,29 +272,53 @@ class BankCore:
             self.goldAccount()
 
 
-    def currencyExchange(self): # it is better for the system to ask again if any input is wrong instantly
-        # make money variable exception throwing for other inputs rather than float
-        """ as a second stage, add a layer that shows the value for result of exchange and ask permission 
-        from user to imply it """ 
+    def currencyExchange(self): # for money variable, input can not be float. This is bad for gold exchange 
+        self.tl, self.usd, self.eur, self.gold
+        
         print("Please state the currency that you will give.")
-        xlira = str(input("tl / usd / eur / gold: "))
+        self.islira = False
+        while(self.islira == False): # both structures can be merged into one but there is no need i believe 
+            xlira = input("tl / usd / eur / gold: ")
+            if(xlira == "tl" or xlira == "usd" or xlira == "eur" or xlira == "gold"):
+                self.islira = True
+            else:
+                print("Please pick one of the currency methods that are stated")
         print("")
+        
         print("Please state the currency that you will get.")
-        ylira = str(input("tl / usd / eur / gold: "))
+        self.islira = False
+        while(self.islira == False):
+            ylira = input("tl / usd / eur / gold: ")
+            if(ylira == "tl" or ylira == "usd" or ylira == "eur" or ylira == "gold"):
+                self.islira = True
+            else:
+                print("Please pick one of the currency methods that are stated")
         print("")
-        print(f"Please type the amount of {xlira.upper()} that you would like to exchange to {ylira.upper()}")
-        money = float(input(f"{xlira.upper()} to {ylira.upper()} with the amount of: "))
+        if(xlira == ylira):
+            print("You can NOT exchange money by from an account to same account. Plase type responding currency methods again\n")
+            self.currencyExchange()
+        else:
+            print(f"Please type the amount of {xlira.upper()} that you would like to exchange to {ylira.upper()}")
+        
+        print("Your asset is shown below\n")
+        print(f"TRY: {self.tl}      |     USD: {self.usd}      |      EUR: {self.eur}      |      Gold: {self.gold}\n")
+        self.islira = False
+        while(self.islira == False):
+            money = input(f"{xlira.upper()} to {ylira.upper()} with the amount of: ")
+            if(money.isdigit()):
+                self.islira = True
+            else:
+                print("Please type valid number that you would like to transfer")
+        
+        money = float(money)
         print("")
 
-        self.tl, self.usd, self.eur, self.gold
-        """ for now, I didn't add but we can get error message when any of related account is not present 
-        by structuring if-else statement inside of each method if(...): if(self.isusd == True): ...  """
         if(xlira == "tl" and ylira == "usd"):
             if(self.isusd == True and money <= self.tl):
                 self.tl -= money
                 addmoney = money / 8.66
                 self.usd += addmoney
-                print(f"Current balance of {xlira.upper()}: {self.tl}, {ylira.upper()}: {self.usd}")
+                print(f"Current balance of {xlira.upper()}: {self.tl}, {ylira.upper()}: {self.usd}\n")
             else:
                 self.checkBool(True, "TRY", self.isusd, "USD", self.tl, money) 
         elif(xlira == "tl" and ylira == "eur"):
@@ -301,7 +326,7 @@ class BankCore:
                 self.tl -= money
                 addmoney = money / 10.29
                 self.eur += addmoney
-                print(f"Current balance of {xlira.upper()}: {self.tl}, {ylira.upper()}: {self.eur}")
+                print(f"Current balance of {xlira.upper()}: {self.tl}, {ylira.upper()}: {self.eur}\n")
             else:
                 self.checkBool(True, "TRY", self.iseur, "Euro", self.tl, money)    
         elif(xlira == "tl" and ylira == "gold"):
@@ -309,7 +334,8 @@ class BankCore:
                 self.tl -= money
                 addmoney = money / 500.29
                 self.gold += addmoney
-                print(f"Current balance of {xlira.upper()}: {self.tl}, {ylira.capitalize()}: {self.gold} gram(s)") 
+                print(f"Current balance of {xlira.upper()}: {self.tl}, {ylira.capitalize()}: {self.gold} gram(s)\n")
+
             else:
                 self.checkBool(True, "TRY", self.isgold, "Gold", self.tl, money)     
         elif(xlira == "usd" and ylira == "tl"):
@@ -317,7 +343,7 @@ class BankCore:
                 self.usd -= money
                 addmoney = money * 8.66
                 self.tl += addmoney
-                print(f"Current balance of {xlira.upper()}: {self.usd}, {ylira.upper()}: {self.tl}") # I erased \n
+                print(f"Current balance of {xlira.upper()}: {self.usd}, {ylira.upper()}: {self.tl}\n") 
             else:
                 self.checkBool(self.isusd, "USD", True, "TRY", self.usd, money)        
         elif(xlira == "usd" and ylira == "eur"):
@@ -326,6 +352,7 @@ class BankCore:
                 addmoney = money / 1.19
                 self.eur += addmoney  
                 print(f"Current balance of {xlira.upper()}: {self.usd}, {ylira.upper()}: {self.eur}\n")
+
             else:
                 self.checkBool(self.isusd, "USD", self.iseur, "Euro", self.usd, money) 
         elif(xlira == "usd" and ylira == "gold"):
@@ -385,7 +412,7 @@ class BankCore:
             else:
                 self.checkBool(self.isgold, "Gold", self.iseur, "Euro", self.gold, money)  
         else:
-            print("Operation failed.\n") # fit that into conditions
+            print("Operation failed. Going back to the main screen\n") # fit that into conditions
             self.interface()
         
     def createCurrency(self):
@@ -435,14 +462,13 @@ class BankCore:
         if(unit <= mny):
             bool3 = True
         if(bool1 == False):
-            print(f"You do NOT have {m1} account for exchange operations")
+            print(f"You do NOT have {m1} account for exchange operations\n")
             bool3 = False
         if(bool2 == False):
-            print(f"You do NOT have {m2} account for exchange operations") 
+            print(f"You do NOT have {m2} account for exchange operations\n") 
             bool3 = False
         if(bool3 == True):
-            print(f"You do NOT have sufficient {m1} to exchange it with {m2}\n")
-        print("") 
+            print(f"You do NOT have sufficient {m1} to exchange it with {m2}\n") 
         
     def nameCorrection(self):
         self.name = input("Name: ")

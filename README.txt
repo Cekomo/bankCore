@@ -1,3 +1,11 @@
+- After 27th commit (12 were deleted) I release alpha version of bankCore. That is
+basically the software that is ran in command prompt. It does not store any value 
+of the user. I does not have currency transfer property since accounts are not saved.
+Except for that issues, alpha version reflect the general purpose of bankCore application.
+Properties: A user can register --> login --> deposit/withdraw money from the TRY account
+or creating USD/EUR/Gold accounts. Exhange money between those balances. For now, this is
+more or less bankCore implementation that is coded so far.
+
 - After 12th commit, I connect my gitHub via different computer. I pushed it with 
 force and commits are erased. Therefore, don't use force after first commit of
 any code.

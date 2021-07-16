@@ -21,9 +21,9 @@ class BankCore:
         self.iseur = False
         self.isgold = False
         
-        self.users = []
+        self.users = {"name": "", "surname": "", "id": "", "password": ""}
     
-    print("Welcome to bankCore!\nPlase type regarding number for the next operation.\n")
+    print("Welcome to bankCore version Alpha(0.1)!\nPlase type regarding number for the next operation.\n")
 
     def menu(self):
         print("1. Log in\n2. Create a new account\n9. Exit\n")
@@ -55,32 +55,33 @@ class BankCore:
             print("Logged in.")
             print("Greetings dear {}, please type respective number to operate\n".format(self.users["name"]))
             self.interface()
+        elif(self.users["id"] != id or self.users["password"] != passw):
+            print("Identity number or password is incorrect.\n")
         else:
             print("Identity number or password is incorrect.\n")
 
 
     def register(self): # whichever i type incorrect input, it asked when all are typed correct from the next again
-        print("Please type your informations correctly that is asked. (Type \"9\" to go back)")
+        print("Please type your informations correctly that is asked. (Type \"9\" to go back)\n")
         
-        print("Your name should have in between 2 - 13 characters. It can NOT have any digit or special character")
+        # print("Your name should have in between 2 - 13 characters. It can NOT have any digit or special character")
         self.nameCorrection()
 
-        print("Your surname should have in between 2 - 15 characters. It can NOT have any digit or special character")  
+        # print("Your surname should have in between 2 - 15 characters. It can NOT have any digit or special character")  
         self.snameCorrection()
         
-        print("Your identity number should only have 11 digits")
+        print("Please type your identity number that consist of 11 digits")
         self.idCorrection()
         
-        print("Your password should be in between 8 - 15 characters. Only letters and digits are allowed")   
+        print("Your password must consist of:\n8 - 15 characters,\nAt least one upper letter,\nAt least one lower letter,\nAt least one digit,\nNo special characters.\n")   
         self.passwCorrection() 
         
         print("Your account is created\n")
         self.createUser(self.name, self.sname, self.id, self.passw) 
 
-
-    def createUser(self, name, sname, id, upassw):
+    def createUser(self, name, sname, id, passw):
         self.users 
-        self.users = {"name": name.capitalize(), "surname": sname.capitalize(), "id": id, "password": upassw}
+        self.users = {"name": name.capitalize(), "surname": sname.capitalize(), "id": id, "password": passw}
         return self.users
 
     def printUser(self): 
@@ -132,8 +133,7 @@ class BankCore:
             self.createCurrency()
 
         elif(go == "4"):
-            # this part will be applied after storage of multiple accounts into dictionary located in another file
-            pass
+            print("Currency transfer operation is under construction")
 
         elif(go == "5"):
             self.currencyExchange()
@@ -571,4 +571,5 @@ class BankCore:
 #-----Execution-----#
 exe = BankCore()
 exe.menu()
+# exe.interface() # for experimenting usages, some of the functions may not operate properly 
 #-----Execution-----#

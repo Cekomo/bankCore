@@ -1,15 +1,9 @@
-"""
-if there is no registery, line 34 gives an error
-adjust currencyExchange method after currencies can store values
-exception handlings are another main concept that I will consider for most methods
-for now, I didn't add but we can get error message when any of related account is not present 
-..by structuring if-else statement inside of each method if(...): if(self.isusd == True): ...  
-system gives an error when nothing is typed into go:
-checkBool() works fine but when tl comes, it also show money amount even if an account doesn't exist
-implement a structure that shows only existing accounts in that list (optional) interface --> go: 2
-make method for account screen to manipulate better
-I can code a method that ask for permission to the user after any operation about implementation 
-"""
+
+# I can code a method that ask for permission to the user after any operation about implementation 
+# implement a structure that shows only existing accounts in that list (optional) interface --> go: 2
+# addmoney variables still breaks the code
+# for pay/withdraw methods, program doesn't execute from "self.themoney += increment" (ln 524)
+
 class BankCore:
     def __init__(self):
         self.tl = 0
@@ -21,7 +15,7 @@ class BankCore:
         self.iseur = False
         self.isgold = False
         
-        self.users = {"name": "", "surname": "", "id": "", "password": ""}
+        self.users = {"name": "Cekomo", "surname": "", "id": "admin", "password": "admin"}
     
     print("Welcome to bankCore version Alpha(0.1)!\nPlase type regarding number for the next operation.\n")
 
@@ -84,11 +78,10 @@ class BankCore:
         self.users = {"name": name.capitalize(), "surname": sname.capitalize(), "id": id, "password": passw}
         return self.users
 
-    def printUser(self): 
+    def printUser(self): # it overwrite if another user is typed 
         print("Informations of the user are listed.")
         print("Name: {}\nSurname: {}\nIdentity number: {}\nPassword: {}\n".format(self.users["name"], self.users["surname"], self.users["id"], self.users["password"]))
-        # it overwrite if another user is typed 
-
+        
     def interface(self):
         print("1. Show registry informations\n2. Operate currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n9. Log out\n")
         go = input("Go: ")
@@ -97,43 +90,15 @@ class BankCore:
         if(go == "1"):
             self.printUser()
 
-        elif(go == "2"): # make method for account screen to manipulate better
+        elif(go == "2"):
             # implement a structure that shows only existing accounts in that list (optional)
-            print("1. TRY account\n2. USD Account\n3. EUR Account\n4. Gold Account\n9. Return main screen\n")
-            go = input("Go: ")
-            print("")
-            
-            if(go == "1"):
-                self.tryAccount()
-            elif(go == "2"):
-                if(self.isusd == True):
-                    self.usdAccount()
-                else:
-                    print("You do NOT have US Dollar account to operate it.\n")
-                    self.interface()
-            elif(go == "3"):
-                if(self.iseur == True):
-                    self.eurAccount()
-                else:
-                    print("You do NOT have Euro account to operate it.\n")
-                    self.interface()
-            elif(go == "4"):
-                if(self.isgold == True):    
-                    self.goldAccount()
-                else:
-                    print("You do NOT have Gold account to operate it.\n")
-                    self.interface()
-            elif(go == "9"):
-                self.interface()
-            else:
-                # build a structure that any other inputs except them return that screen
-                self.interface()
+            self.currencyAccount(self.isusd, self.iseur, self.isgold)
 
         elif(go == "3"): 
             self.createCurrency()
 
         elif(go == "4"):
-            print("Currency transfer operation is under construction")
+            print("Currency transfer operation is under construction\n")
 
         elif(go == "5"):
             self.currencyExchange()
@@ -156,22 +121,10 @@ class BankCore:
             print("Dear {}, you have {} tl in your Turkish Lira account.\n".format(self.users["name"], str(self.tl))) 
 
         elif(go == "2"):
-            print("Please type the amount that you would like to deposit.\n")
-            addtl = float(input("TRY: "))
-            self.tl += addtl
-            print(f"TRY balance is updated as {self.tl} tl\n")       
+            self.payMoney(self.tl, "TRY", "Turkish liras")       
 
         elif(go == "3"): 
-            print("Please type the amount that you would like to withdraw.")
-            taketl = float(input("TRY: "))
-            self.tl -= taketl 
-            
-            if(self.tl >= 0):
-                print(f"TRY balance is updated as {self.tl} tl.\n")
-            
-            else:
-                self.tl += taketl 
-                print(f"You have insufficient currency to withdraw {taketl} tl.\nNo currency is withdrawn.\n")
+            self.withdrawMoney(self.tl, "TRY", "Turkish liras")
 
         elif(go == "9"):
             self.interface()
@@ -189,22 +142,10 @@ class BankCore:
             print("Dear {}, you have {} dollar(s) in your US Dollar account.\n".format(self.users["name"], str(self.usd))) 
 
         elif(go == "2"):
-            print("Please type the amount that you would like to deposit.\n")
-            addusd = float(input("USD: "))
-            self.usd += addusd
-            print(f"USD balance is updated as {self.usd} dollars\n.")       
+            self.payMoney(self.usd, "USD", "dollars")       
 
         elif(go == "3"): 
-            print("Please type the amount that you would like to withdraw.")
-            takeusd = float(input("USD: "))
-            self.usd -= takeusd 
-            
-            if(self.usd >= 0):
-                print(f"USD balance is updated as {self.usd} dollars.\n")
-            
-            else:
-                self.usd += takeusd 
-                print(f"You have insufficient currency to withdraw {takeusd} dollars.\nNo currency is withdrawn.\n")
+            self.withdrawMoney(self.usd, "USD", "dollars")  
 
         elif(go == "9"):
             self.interface()
@@ -222,22 +163,10 @@ class BankCore:
             print("Dear {}, you have {} euro in your Euro account.\n".format(self.users["name"], str(self.eur))) 
 
         elif(go == "2"):
-            print("Please type the amount that you would like to deposit.\n")
-            addeur = float(input("EUR: "))
-            self.eur += addeur
-            print(f"EUR balance is updated as {self.eur} euro\n.")       
+            self.payMoney(self.eur, "EUR", "euros")         
 
         elif(go == "3"): 
-            print("Please type the amount that you would like to withdraw.")
-            takeeur = float(input("EUR: "))
-            self.eur -= takeeur 
-            
-            if(self.eur >= 0):
-                print(f"EUR balance is updated as {self.eur} euro.\n")
-            
-            else:
-                self.eur += takeeur 
-                print(f"You have insufficient currency to withdraw {takeeur} euro.\nNo currency is withdrawn.\n")
+            self.withdrawMoney(self.eur, "EUR", "euros")
 
         elif(go == "9"):
             self.interface()
@@ -248,7 +177,7 @@ class BankCore:
     def goldAccount(self):
         self.gold # update second and third statements to make them dynamic!
 
-        print("\nGold purchasing and sale operations are conducted in currency exchange tab\n")
+        print("Gold purchasing and sale operations are conducted in currency exchange tab\n")
         print("1. Display gold amount\n2. Gold stock sale price\n3. Gold stock puchasing price\n9. Return main screen\n")
         go = input("Go: ")
         print("")
@@ -437,7 +366,7 @@ class BankCore:
             print("")
             if(psw == self.users["password"]):
                 self.iseur = True
-                print("Euro account is created!")
+                print("Euro account is created!\n")
             else:
                 print("Password is incorrect, going back to main screen\n")
                 self.interface()
@@ -555,21 +484,107 @@ class BankCore:
         else:
             pass
 
-    def reach(self, togo): # this function needs to be specialized regarding tabs in user interface
-        # i do not think this is an efficient way to implement such a method
-        isgo = False
-        while(isgo == False):
-            togo = input("Go: ")
-            if(togo == "1" or togo == "2" or togo == "3" or togo == "4" or togo == "5" or togo == "9"):
-                isgo = True
-                return togo 
+    def currencyAccount(self, isusd, iseur, isgold):
+        print("1. TRY account\n2. USD Account\n3. EUR Account\n4. Gold Account\n9. Return main screen\n")
+        go = input("Go: ")
+        print("")
+            
+        if(go == "1"):
+            self.tryAccount()
+        elif(go == "2"):
+            if(self.isusd == True):
+                self.usdAccount()
             else:
-                isgo = False
-                print("Please type a respective number to operate")
-            print("")  
+                print("You do NOT have US Dollar account to operate it.\n")
+                self.interface()
+        elif(go == "3"):
+            if(self.iseur == True):
+                self.eurAccount()
+            else:
+                print("You do NOT have Euro account to operate it.\n")
+                self.interface()
+        elif(go == "4"):
+            if(self.isgold == True):    
+                self.goldAccount()
+            else:
+                print("You do NOT have Gold account to operate it.\n")
+                self.interface()
+        elif(go == "9"):
+            self.interface()
+        else:
+            self.currencyAccount(isusd, iseur, isgold)
+
+    def payMoney(self, themoney, m1, m2):
+        print("Please type the amount that you would like to deposit.\nType \"0\" to go back")
+        themoney = 0
+        increment = 0
+        ismoney = False
+        while(ismoney == False):
+            try:
+                increment = float(input(f"{m1}: "))
+                if(isinstance(increment, float) and increment >= 0):
+                    themoney += increment # program does not execute from this point and somehow throw exception
+                    # problem is on the self. parameter
+                    ismoney = True   
+                else:
+                    print("")
+                    print("Please type a positive value to operate")
+            except:
+                print("")
+                print("Please type numerical values only")
+        
+        if(increment != 0):
+            print("")
+            if(m1 == "TRY"):
+                self.tl += themoney
+                print(f"{m1} balance is updated as {self.tl} {m2}\n")
+            elif(m1 == "USD"):
+                self.usd += themoney
+                print(f"{m1} balance is updated as {self.usd} {m2}\n")
+            elif(m1 == "EUR"):
+                self.eur += themoney
+                print(f"{m1} balance is updated as {self.eur} {m2}\n")
+        else:
+            print("Returning back to the main screen")
+
+    def withdrawMoney(self, themoney, m1, m2):
+        print("Please type the amount that you would like to withdraw.\nType \"0\" to go back")
+        themoney = 0
+        decrement = 0
+        ismoney = False
+        while(ismoney == False):
+            try:
+                decrement = float(input(f"{m1}: "))
+                if(isinstance(decrement, float) and decrement >= 0):
+                    themoney += decrement
+                    ismoney = True
+                else:
+                    print("")
+                    print("Please type a positive value to operate")
+            except:
+                print("")
+                print("Please type numerical values only")
+        
+        if(decrement != 0):
+            print("")
+            if(m1 == "TRY" and (self.tl - themoney >= 0)):
+                self.tl -= themoney
+                print(f"{m1} balance is updated as {self.tl} {m2}\n")
+            elif(m1 == "USD" and (self.usd - themoney >= 0)):
+                self.usd -= themoney
+                print(f"{m1} balance is updated as {self.usd} {m2}\n")
+            elif(m1 == "EUR" and (self.eur - themoney >= 0)):
+                self.eur -= themoney
+                print(f"{m1} balance is updated as {self.eur} {m2}\n")
+            else:
+                themoney += decrement # this is not necessarry
+                print(f"You have insufficient currency to withdraw {decrement} {m2}.\nNo currency is withdrawn.\n")
+        else:
+            print("Returning back to the main screen")
+        
 
 #-----Execution-----#
 exe = BankCore()
-exe.menu()
-# exe.interface() # for experimenting usages, some of the functions may not operate properly 
+#exe.menu()
+exe.interface() # for experimenting usages, some of the functions may not operate properly 
 #-----Execution-----#

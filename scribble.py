@@ -1,7 +1,10 @@
-
 # I can code a method that ask for permission to the user after any operation about implementation 
 # implement a structure that shows only existing accounts in that list (optional) interface --> go: 2
 # even if the account is created, it still prints about creation of account
+# spaces are adjusted by considering decimals of exchange ratios, for instance if eurtotl decreases more, need to be adjusted again..
+# ..for display of user's asset and exchange ratios, I can code a structure that only shows related components of exchange..
+# i.e for TRY to USD, try and usd assets and their ratios 
+# even if the things can become messy in currencyExchange method, this method can be merged and save up hundreds lines of codes
 
 class BankCore:
     def __init__(self):
@@ -170,7 +173,7 @@ class BankCore:
             self.goldAccount()
 
 
-    def currencyExchange(self): 
+    def currencyExchange(self): # even if the things can become messy, this method can be merged and save up hundreds lines of codes
         self.tl, self.usd, self.eur, self.gold
         
         print("Please state the currency that you will give.")
@@ -196,16 +199,47 @@ class BankCore:
             print("You can NOT exchange money by from an account to same account. Plase type responding currency methods again\n")
             self.currencyExchange()
         else:
-            print(f"Please type the amount of {xlira.upper()} that you would like to exchange to {ylira.upper()}")
+            print(f"Please type the amount of {xlira.upper()} that you would like to exchange to {ylira.upper()}:\n")
         
-        # spaces are adjusted by considering decimals of exchange ratios, for instance if eurtotl decreases more, need to be adjusted again
-        print("Your asset is shown below")
-        print(f"      TRY: {'%.2f'%self.tl}      |        USD: {'%.2f'%self.usd}       |          EUR: {'%.2f'%self.eur}          |      Gold: {'%.4f'%self.gold}\n")
+        if(xlira == "tl" and ylira == "usd"):
+            if(self.isusd == True):              
+                self.printAsset(self.tl, "TRY", self.usd, "USD", self.tltousd)
+        elif(xlira == "tl" and ylira == "eur"):
+            if(self.iseur == True):    
+                self.printAsset(self.tl, "TRY", self.eur, "EUR", self.tltoeur)
+        elif(xlira == "tl" and ylira == "gold"):
+            if(self.isgold == True):
+                self.printAsset(self.tl, "TRY", self.gold, "Gold", self.tltogold)
+        elif(xlira == "usd" and ylira == "tl"):
+            if(self.isusd == True):
+                self.printAsset(self.usd, "USD", self.tl, "TRY", self.usdtotl)
+        elif(xlira == "usd" and ylira == "eur"):
+            if(self.isusd == True and self.iseur == True):
+                self.printAsset(self.usd, "USD", self.eur, "EUR", self.usdtoeur)
+        elif(xlira == "usd" and ylira == "gold"):
+            if(self.isusd == True and self.isgold == True):
+                self.printAsset(self.usd, "USD", self.gold, "Gold", self.usdtogold)
+        elif(xlira == "eur" and ylira == "tl"):
+            if(self.iseur == True):
+                self.printAsset(self.eur, "EUR", self.tl, "TRY", self.eurtotl)
+        elif(xlira == "eur" and ylira == "usd"):
+            if(self.iseur == True and self.isusd == True):
+                self.printAsset(self.eur, "EUR", self.usd, "USD", self.eurtousd)
+        elif(xlira == "eur" and ylira == "gold"):
+            if(self.iseur == True and self.isgold == True): 
+                self.printAsset(self.eur, "EUR", self.gold, "Gold", self.eurtogold)
+        elif(xlira == "gold" and ylira == "tl"):
+            if(self.isgold == True):
+                self.printAsset(self.gold, "Gold", self.tl, "TRY", self.goldtotl)
+        elif(xlira == "gold" and ylira == "usd"):
+            if(self.isgold == True and self.isusd == True):  
+                self.printAsset(self.gold, "Gold", self.usd, "USD", self.goldtousd)      
+        elif(xlira == "gold" and ylira == "eur"):
+            if(self.isgold == True and self.iseur == True):
+                self.printAsset(self.gold, "Gold", self.eur, "EUR", self.goldtoeur)
+        else:
+            pass
         
-        print("Exchange ratios are shown below")
-        print(f"TRY to USD: {'%.2f'%self.tltousd}     |    USD to TRY: {'%.2f'%self.usdtotl}    |     EUR to TRY : {'%.2f'%self.eurtotl}      |   Gold to TRY: {'%.4f'%self.goldtotl}")
-        print(f"TRY to EUR: {'%.2f'%self.tltoeur}     |    USD to EUR: {'%.2f'%self.usdtoeur}    |      EUR to USD : {'%.2f'%self.eurtousd}      |   Gold to USD: {'%.4f'%self.goldtousd}")
-        print(f"TRY to Gold: {'%.4f'%self.tltogold}  |   USD to Gold: {'%.4f'%self.usdtogold}  |    EUR to Gold : {'%.4f'%self.eurtogold}     |   Gold to EUR: {'%.4f'%self.goldtoeur}\n")
         self.islira = False
         while(self.islira == False):
             try:    
@@ -217,10 +251,10 @@ class BankCore:
             except:
                 print(f"Please type valid value to exchange {xlira.upper()} with {ylira.upper()}")        
 
-        print("")
+        print("")        
 
         if(xlira == "tl" and ylira == "usd"):
-            if(self.isusd == True and money <= self.tl):
+            if(self.isusd == True and money <= self.tl):              
                 self.tl -= money
                 addmoney = money * self.tltousd
                 self.usd += addmoney
@@ -228,7 +262,7 @@ class BankCore:
             else:
                 self.checkBool(True, "TRY", self.isusd, "USD", self.tl, money) 
         elif(xlira == "tl" and ylira == "eur"):
-            if(self.iseur == True and money <= self.tl):    
+            if(self.iseur == True and money <= self.tl):                
                 self.tl -= money
                 addmoney = money * self.tltoeur
                 self.eur += addmoney
@@ -502,8 +536,7 @@ class BankCore:
             try:
                 increment = float(input(f"{m1}: "))
                 if(isinstance(increment, float) and increment >= 0):
-                    themoney += increment # program does not execute from this point and somehow throw exception
-                    # problem is on the self. parameter
+                    themoney += increment 
                     ismoney = True   
                 else:
                     print("")
@@ -561,10 +594,17 @@ class BankCore:
         else:
             print("Returning back to the main screen")
         
+    def printAsset(self, assMoney1, assMny1, assMoney2, assMny2, excRatio):
+        print(f"Your asset in {assMny1} and {assMny2} accounts:")
+        print(f"|    {assMny1}: {'%.2f'%assMoney1}    |    {assMny2}: {'%.2f'%assMoney2}    |") 
+        print(f"Exchange ratio of", end = " ") 
+        print(f"{assMny1} to {assMny2}: {'%.5f'%excRatio}\n")
 
 #-----Execution-----#
+
 exe = BankCore()
-# exe.menu() # that includes registery
+# exe.menu() # this is the main program 
 exe.interface() # for experimenting usages, some of the functions may not operate properly 
 # exe.currencyExchange() # for experimenting usages, some of the functions may not operate properly 
+
 #-----Execution-----#

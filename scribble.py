@@ -124,72 +124,29 @@ class BankCore:
         
         self.interface() # after deposit and withdrawing, it doesn't return interface so this is added. check it
 
-    def tryAccount(self):
-        self.tl
-        print(f"1. Display currency amount\n2. Deposit TRY\n3. Withdraw TRY\n9. Return main screen\n")
+    def account(self, mny, mnyU, mnyL):
+        mny
+        print(f"1. Display currency amount\n2. Deposit {mnyU}\n3. Withdraw {mnyU}\n9. Return main screen\n")
         go = input("Go: ")
         print("")
 
         if(go == "1"):
-            print("Dear {}, you have {} tl in your Turkish Lira account.\n".format(self.users["name"], str('%.2f'%self.tl))) 
+            print("Dear {}, you have {} {} in your {} account.\n".format(self.users["name"], str('%.2f'%mny), mnyL + "(s)", mnyU)) 
 
         elif(go == "2"):
-            self.payMoney(self.tl, "TRY", "Turkish liras")       
+            self.payMoney(mny, mnyU, mnyL)         
 
         elif(go == "3"): 
-            self.withdrawMoney(self.tl, "TRY", "Turkish liras")
-
-        elif(go == "9"):
-            self.interface()
-        else:
-            print("Please type any respective number to operate\n")
-            self.tryAccount() 
-
-    def usdAccount(self):
-        self.usd
-        print(f"1. Display currency amount\n2. Deposit USD\n3. Withdraw USD\n9. Return main screen\n")
-        go = input("Go: ")
-        print("")
-
-        if(go == "1"):
-            print("Dear {}, you have {} dollar(s) in your US Dollar account.\n".format(self.users["name"], str('%.2f'%self.usd))) 
-
-        elif(go == "2"):
-            self.payMoney(self.usd, "USD", "dollars")       
-
-        elif(go == "3"): 
-            self.withdrawMoney(self.usd, "USD", "dollars")  
-
-        elif(go == "9"):
-            self.interface()
-        else:
-            print("Please type any respective number to operate\n")
-            self.usdAccount() 
-
-    def eurAccount(self):
-        self.eur
-        print(f"1. Display currency amount\n2. Deposit EUR\n3. Withdraw EUR\n9. Return main screen\n")
-        go = input("Go: ")
-        print("")
-
-        if(go == "1"):
-            print("Dear {}, you have {} euro in your Euro account.\n".format(self.users["name"], str('%.2f'%self.eur))) 
-
-        elif(go == "2"):
-            self.payMoney(self.eur, "EUR", "euros")         
-
-        elif(go == "3"): 
-            self.withdrawMoney(self.eur, "EUR", "euros")
+            self.withdrawMoney(mny, mnyU, mnyL)
 
         elif(go == "9"):
             self.interface()
         else:
             print("Please type any respective number to operate\n")            
-            self.eurAccount() 
+            self.account(mny, mnyU, mnyL) 
 
     def goldAccount(self):
-        self.gold # update second and third statements to make them dynamic!
-
+        self.gold
         print("Gold purchasing and sale operations are conducted in currency exchange tab\n")
         print("1. Display gold amount\n2. Gold stock sale price\n3. Gold stock puchasing price\n9. Return main screen\n")
         go = input("Go: ")
@@ -197,15 +154,14 @@ class BankCore:
 
         if(go == "1"):
             print("Dear {}, you have {} gram(s) in your Gold account.\n".format(self.users["name"], str('%.4f'%self.gold))) 
-            # clip decimals in 2 or 3, there are 14 of them and it does not seem okay
 
-        elif(go == "2"): # update it so that it depends on currencies directly rather than static numbers
+        elif(go == "2"): 
             print(f"Sale price of gold is:\nTRY: {'%.2f'%self.goldtotl}\nUSD: {'%.2f'%self.goldtousd}\nEUR: {'%.2f'%self.goldtoeur}\n")    
-            # clip the decimals
             
-        elif(go == "3"): # update it so that it depends on currencies directly rather than static numbers
+            
+        elif(go == "3"): 
             print(f"Purchase price of gold is:\nTRY: {'%.2f'%self.goldtotl-1.2}\nUSD: {'%.2f'%self.goldtousd-0.14}\nEUR: {'%.2f'%self.goldtoeur-0.12}\n") 
-            # clip the decimals
+            # numbers are arbitrary
 
         elif(go == "9"):
             self.interface()
@@ -242,8 +198,14 @@ class BankCore:
         else:
             print(f"Please type the amount of {xlira.upper()} that you would like to exchange to {ylira.upper()}")
         
-        print("Your asset is shown below\n")
-        print(f"TRY: {'%.2f'%self.tl}      |     USD: {'%.2f'%self.usd}      |      EUR: {'%.2f'%self.eur}      |      Gold: {'%.4f'%self.gold}\n")
+        # spaces are adjusted by considering decimals of exchange ratios, for instance if eurtotl decreases more, need to be adjusted again
+        print("Your asset is shown below")
+        print(f"      TRY: {'%.2f'%self.tl}      |        USD: {'%.2f'%self.usd}       |          EUR: {'%.2f'%self.eur}          |      Gold: {'%.4f'%self.gold}\n")
+        
+        print("Exchange ratios are shown below")
+        print(f"TRY to USD: {'%.2f'%self.tltousd}     |    USD to TRY: {'%.2f'%self.usdtotl}    |     EUR to TRY : {'%.2f'%self.eurtotl}      |   Gold to TRY: {'%.4f'%self.goldtotl}")
+        print(f"TRY to EUR: {'%.2f'%self.tltoeur}     |    USD to EUR: {'%.2f'%self.usdtoeur}    |      EUR to USD : {'%.2f'%self.eurtousd}      |   Gold to USD: {'%.4f'%self.goldtousd}")
+        print(f"TRY to Gold: {'%.4f'%self.tltogold}  |   USD to Gold: {'%.4f'%self.usdtogold}  |    EUR to Gold : {'%.4f'%self.eurtogold}     |   Gold to EUR: {'%.4f'%self.goldtoeur}\n")
         self.islira = False
         while(self.islira == False):
             try:    
@@ -507,16 +469,16 @@ class BankCore:
         print("")
             
         if(go == "1"):
-            self.tryAccount()
+            self.account(self.tl, "TRY", "lira")
         elif(go == "2"):
             if(self.isusd == True):
-                self.usdAccount()
+                self.account(self.usd, "USD", "dollar")
             else:
                 print("You do NOT have US Dollar account to operate it.\n")
                 self.interface()
         elif(go == "3"):
             if(self.iseur == True):
-                self.eurAccount()
+                self.account(self.eur, "EUR", "euro")
             else:
                 print("You do NOT have Euro account to operate it.\n")
                 self.interface()
@@ -604,4 +566,5 @@ class BankCore:
 exe = BankCore()
 # exe.menu() # that includes registery
 exe.interface() # for experimenting usages, some of the functions may not operate properly 
+# exe.currencyExchange() # for experimenting usages, some of the functions may not operate properly 
 #-----Execution-----#

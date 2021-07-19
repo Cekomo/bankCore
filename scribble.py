@@ -1,7 +1,5 @@
 # I can code a method that ask for permission to the user after any operation about implementation 
-# implement a structure that shows only existing accounts in that list (optional) interface --> go: 2
-# even if the things can become messy in currencyExchange method, this method can be merged and save up hundreds lines of codes..
-# ..I tried but there are some problems such as self.currency variables does not hold the values
+# implement a structure that shows only existing accounts in that list (optional) interface --> go: 2     
 
 class BankCore:
     def __init__(self):
@@ -67,7 +65,6 @@ class BankCore:
         else:
             print("Identity number or password is incorrect.\n")
 
-
     def register(self): # whichever i type incorrect input, it asked when all are typed correct from the next again
         print("Please type your informations correctly that is asked. (Type \"9\" to go back)\n")
         
@@ -89,6 +86,16 @@ class BankCore:
     def createUser(self, name, sname, id, passw):
         self.users 
         self.users = {"name": name.capitalize(), "surname": sname.capitalize(), "id": id, "password": passw}
+        # ------------------- !this implementation may not be valid for beta version! ----------------------- #
+        self.tl = 0
+        self.usd = 0
+        self.eur = 0
+        self.gold = 0
+
+        self.isusd = False
+        self.iseur = False
+        self.isgold = False
+        # ------------------- !this implementation may not be valid for beta version! ----------------------- #
         return self.users
 
     def printUser(self): # it overwrite if another user is typed 
@@ -158,7 +165,10 @@ class BankCore:
         elif(go == "2"): 
             print(f"Sale price of gold is:\nTRY: {'%.2f'%self.goldtotl}\nUSD: {'%.2f'%self.goldtousd}\nEUR: {'%.2f'%self.goldtoeur}\n")         
         elif(go == "3"): 
-            print(f"Purchase price of gold is:\nTRY: {'%.2f'%self.goldtotl-1.2}\nUSD: {'%.2f'%self.goldtousd-0.14}\nEUR: {'%.2f'%self.goldtoeur-0.12}\n") 
+            sgoldtl = self.goldtotl - 1.2 
+            sgoldusd = self.goldtousd - 0.14
+            sgoldeur = self.goldtoeur - 0.12
+            print(f"Purchase price of gold is:\nTRY: {'%.2f'%sgoldtl}\nUSD: {'%.2f'%sgoldusd}\nEUR: {'%.2f'%sgoldeur}\n") 
             # numbers are arbitrary
         elif(go == "9"):
             self.interface()
@@ -167,8 +177,7 @@ class BankCore:
             self.goldAccount()
 
     def currencyExchange(self): 
-        self.tl, self.usd, self.eur, self.gold
-        # add zero factor 
+        self.tl, self.usd, self.eur, self.gold 
 
         if(self.isusd or self.iseur or self.isgold): # this statement provides direct exit if no account is created
             print("Please state the currency that you will give.")
@@ -266,7 +275,7 @@ class BankCore:
                     self.tl -= money
                     addmoney = money * self.tltousd
                     self.usd += addmoney
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl}, {ylira.upper()}: {'%.2f'%self.usd}\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.upper()}: {'%.2f'%self.usd}\n")
                 else:
                     self.checkBool(True, "TRY", self.isusd, "USD", self.tl, money) 
             elif(xlira == "try" and ylira == "eur"):
@@ -274,7 +283,7 @@ class BankCore:
                     self.tl -= money
                     addmoney = money * self.tltoeur
                     self.eur += addmoney
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl}, {ylira.upper()}: {'%.2f'%self.eur}\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.upper()}: {'%.2f'%self.eur}\n")
                 else:
                     self.checkBool(True, "TRY", self.iseur, "Euro", self.tl, money)    
             elif(xlira == "try" and ylira == "gold"):
@@ -282,7 +291,7 @@ class BankCore:
                     self.tl -= money
                     addmoney = money * self.tltogold
                     self.gold += addmoney
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl}, {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n")
                 else:
                     self.checkBool(True, "TRY", self.isgold, "Gold", self.tl, money)     
             elif(xlira == "usd" and ylira == "try"):
@@ -290,7 +299,7 @@ class BankCore:
                     self.usd -= money
                     addmoney = money * self.usdtotl
                     self.tl += addmoney
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd}, {ylira.upper()}: {'%.2f'%self.tl}\n") 
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.upper()}: {'%.2f'%self.tl}\n") 
                 else:
                     self.checkBool(self.isusd, "USD", True, "TRY", self.usd, money)        
             elif(xlira == "usd" and ylira == "eur"):
@@ -298,7 +307,7 @@ class BankCore:
                     self.usd -= money
                     addmoney = money * self.usdtoeur
                     self.eur += addmoney  
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd}, {ylira.upper()}: {'%.2f'%self.eur}\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.upper()}: {'%.2f'%self.eur}\n")
                 else:
                     self.checkBool(self.isusd, "USD", self.iseur, "Euro", self.usd, money) 
             elif(xlira == "usd" and ylira == "gold"):
@@ -306,7 +315,7 @@ class BankCore:
                     self.usd -= money
                     addmoney = money * self.usdtogold
                     self.gold += addmoney  
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd}, {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n") 
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n") 
                 else:
                     self.checkBool(self.isusd, "USD", self.isgold, "Gold", self.usd, money)          
             elif(xlira == "eur" and ylira == "try"):
@@ -314,7 +323,7 @@ class BankCore:
                     self.eur -= money
                     addmoney = money * self.eurtotl
                     self.tl += addmoney     
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur}, {ylira.upper()}: {'%.2f'%self.tl}\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.upper()}: {'%.2f'%self.tl}\n")
                 else:
                     self.checkBool(self.iseur, "Euro", True, "TRY", self.eur, money)   
             elif(xlira == "eur" and ylira == "usd"):
@@ -322,7 +331,7 @@ class BankCore:
                     self.eur -= money
                     addmoney = money * self.eurtousd
                     self.usd += addmoney
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur}, {ylira.upper()}: {'%.2f'%self.usd}\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.upper()}: {'%.2f'%self.usd}\n")
                 else:
                     self.checkBool(self.iseur, "Euro", self.isusd, "USD", self.eur, money) 
             elif(xlira == "eur" and ylira == "gold"):
@@ -330,7 +339,7 @@ class BankCore:
                     self.eur -= money
                     addmoney = money * self.eurtogold
                     self.gold += addmoney  
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur}, {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n")  
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n")  
                 else:
                     self.checkBool(self.iseur, "Euro", self.isgold, "Gold", self.eur, money)    
             elif(xlira == "gold" and ylira == "try"):
@@ -338,7 +347,7 @@ class BankCore:
                     self.gold -= money
                     addmoney = money * self.goldtotl
                     self.tl += addmoney  
-                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s), {ylira.upper()}: {'%.2f'%self.tl}\n")
+                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.tl}\n")
                 else:
                     self.checkBool(self.isgold, "Gold", True, "TRY", self.gold, money)
             elif(xlira == "gold" and ylira == "usd"):
@@ -346,7 +355,7 @@ class BankCore:
                     self.gold -= money
                     addmoney = money * self.goldtousd
                     self.usd += addmoney  
-                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s), {ylira.upper()}: {'%.2f'%self.usd}\n")
+                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.usd}\n")
                 else:
                     self.checkBool(self.isgold, "Gold", self.isusd, "USD", self.gold, money)        
             elif(xlira == "gold" and ylira == "eur"):
@@ -354,16 +363,17 @@ class BankCore:
                     self.gold -= money
                     addmoney = money * self.goldtoeur
                     self.eur += addmoney  
-                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s), {ylira.upper()}: {'%.2f'%self.eur}\n")  
+                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.eur}\n")  
                 else:
                     self.checkBool(self.isgold, "Gold", self.iseur, "Euro", self.gold, money)  
             else:
                 print("Operation failed. Going back to the main screen\n") # fit that into conditions
                 self.interface()
-                # ----------------- exchangeCurrency method ends here ------------------- #
+                
         else:
             print("You do NOT have any created account to exchange currency\n")
-        
+    # ----------------- exchangeCurrency method ends here ------------------- #
+
     def createCurrency(self):  
         print("Please select respective number to create currency account\n")
         print("1. USD Account\n2. EUR Account\n3. Gold Account\n9. Return main screen\n")
@@ -539,25 +549,24 @@ class BankCore:
             self.currencyAccount(isusd, iseur, isgold)
 
     def payMoney(self, themoney, m1, m2):
-        print("Please type the amount that you would like to deposit.\nType \"0\" to go back")
+        print("Please type the amount that you would like to deposit\nType \"0\" to go back")
         themoney = 0
         increment = 0
         ismoney = False
         while(ismoney == False):
             try:
                 increment = float(input(f"{m1}: "))
+                print("")
                 if(isinstance(increment, float) and increment >= 0):
                     themoney += increment 
                     ismoney = True   
                 else:
-                    print("")
                     print("Please type a positive value to operate")
             except:
                 print("")
                 print("Please type numerical values only")
         
         if(increment != 0):
-            print("")
             if(m1 == "TRY"):
                 self.tl += themoney
                 print(f"{m1} balance is updated as {'%.2f'%self.tl} {m2}\n")
@@ -568,49 +577,51 @@ class BankCore:
                 self.eur += themoney
                 print(f"{m1} balance is updated as {'%.2f'%self.eur} {m2}\n")
         else:
-            print("Returning back to the main screen")
+            print("Returning back to the main screen\n")
 
     def withdrawMoney(self, themoney, m1, m2):
-        print("Please type the amount that you would like to withdraw.\nType \"0\" to go back")
-        themoney = 0
-        decrement = 0
-        ismoney = False
-        while(ismoney == False):
-            try:
-                decrement = float(input(f"{m1}: "))
-                if(isinstance(decrement, float) and decrement >= 0):
-                    themoney += decrement
-                    ismoney = True
-                else:
+        if(themoney == 0):
+            print(f"There is no currency to withdraw in your {m1} account\n")
+            self.interface()
+        else:   
+            print("Please type the amount that you would like to withdraw\nType \"0\" to go back")
+            themoney = 0
+            decrement = 0
+            ismoney = False
+            while(ismoney == False):
+                try:
+                    decrement = float(input(f"{m1}: "))
                     print("")
-                    print("Please type a positive value to operate")
-            except:
-                print("")
-                print("Please type numerical values only")
-        
-        if(decrement != 0):
-            print("")
-            if(m1 == "TRY" and (self.tl - themoney >= 0)):
-                self.tl -= themoney
-                print(f"{m1} balance is updated as {'%.2f'%self.tl} {m2}\n")
-            elif(m1 == "USD" and (self.usd - themoney >= 0)):
-                self.usd -= themoney
-                print(f"{m1} balance is updated as {'%.2f'%self.usd} {m2}\n")
-            elif(m1 == "EUR" and (self.eur - themoney >= 0)):
-                self.eur -= themoney
-                print(f"{m1} balance is updated as {'%.2f'%self.eur} {m2}\n")
+                    if(isinstance(decrement, float) and decrement > 0):
+                        themoney += decrement
+                        ismoney = True
+                    else:           
+                        print("Please type a positive value to operate")
+                except:
+                    print("")
+                    print("Please type numerical values only")
+            
+            if(decrement != 0):
+                if(m1 == "TRY" and (self.tl - themoney >= 0)):
+                    self.tl -= themoney
+                    print(f"{m1} balance is updated as {'%.2f'%self.tl} {m2}\n")
+                elif(m1 == "USD" and (self.usd - themoney >= 0)):
+                    self.usd -= themoney
+                    print(f"{m1} balance is updated as {'%.2f'%self.usd} {m2}\n")
+                elif(m1 == "EUR" and (self.eur - themoney >= 0)):
+                    self.eur -= themoney
+                    print(f"{m1} balance is updated as {'%.2f'%self.eur} {m2}\n")
+                else:
+                    themoney += decrement # this is not necessarry
+                    print(f"You have insufficient currency to withdraw {'%.2f'%decrement} {m2}.\nNo currency is withdrawn.\n")
             else:
-                themoney += decrement # this is not necessarry
-                print(f"You have insufficient currency to withdraw {'%.2f'%decrement} {m2}.\nNo currency is withdrawn.\n")
-        else:
-            print("Returning back to the main screen")
+                print("Returning back to the main screen")
         
     def printAsset(self, assMoney1, assMny1, assMoney2, assMny2, excRatio):
         print(f"Your asset in {assMny1} and {assMny2} accounts:")
         print(f"|    {assMny1}: {'%.2f'%assMoney1}    |    {assMny2}: {'%.2f'%assMoney2}    |") 
         print(f"Exchange ratio of", end = " ") 
         print(f"{assMny1} to {assMny2}: {'%.5f'%excRatio}\n")  
-
 
 #-----Execution-----#
 

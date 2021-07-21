@@ -1,3 +1,7 @@
+- It seems it is not possible to impelement a structure that writes user's datas into
+".txt" file and read/manipulate it. I stuck on reading data from ".txt" file So I jump 
+the next step which is MySQL database.
+
 - After 27th commit (12 were deleted) I release alpha version of bankCore. That is
 basically the software that is ran in command prompt. It does not store any value 
 of the user. I does not have currency transfer property since accounts are not saved.

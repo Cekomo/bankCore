@@ -1,9 +1,10 @@
-# I can code a method that ask for permission to the user after any operation about implementation 
 # implement a structure that shows only existing accounts in that list (optional) interface --> go: 2  
+
 # add new function for exchangeCurrency() so that, it can monitor the converted amount and ask permission 
 # ..from user whether it approves the value or not
 # add new function for transferCurrency() so that, it can monitor the amount that is about to be sent, and
 # ..monitor the amount after send process is completed
+# add current currency amount for payMoney() and withdrawMoney()
 
 """
 Report of mySQL behaviour:
@@ -15,22 +16,12 @@ Report of mySQL behaviour:
     no problem. This circumstances is valid for all the variables that contains changeable values.
 """
 
+import time
 import mysql.connector
 from mysql.connector.errors import DatabaseError
 
 class BankCore:
     def __init__(self):
-        
-        # self.mydb = mysql.connector.connect (
-        # database = "userinfo", # respective part for implementation
-        # host = "127.0.0.1",
-        # user = "root",
-        # password = "Bf27a96fae" )
-
-        # self.mycursor = self.mydb.cursor()
-
-        # self.mycursor.execute("Select * From users")
-        # self.database = self.mycursor.fetchall()
 
         self.tl = 0 
         self.usd = 0 
@@ -121,6 +112,7 @@ class BankCore:
                 self.eur = float(data[7])
                 self.gold = float(data[8])
 
+                time.sleep(1)
                 self.interface(self.idn)
 
         if logbool == False:
@@ -164,10 +156,11 @@ class BankCore:
         # there were essential variables that equal "0"
         # return self.users
         
-    def printUser(self): # it will crash for out of range if id sequence corrupts (i.e idusers jumps from 5 to 8) 
+    def printUser(self): 
         print("Informations of the user are listed.")
-        
+        time.sleep(0.2)
         print("Name: {}\nSurname: {}\nIdentity number: {}\nPassword: {}\n".format(self.name, self.sname, self.id, self.passw))
+        time.sleep(2)
 
     def interface(self, idd):
         
@@ -181,12 +174,6 @@ class BankCore:
         self.mycursor.execute("Select * From users")
         self.database = self.mycursor.fetchall()
         
-        # for data in self.database[self.idn]: # as far as i understand, it checks respective row everytime for interface access
-        #     self.userlist.append(data)
-        
-        # self.name = self.userlist[1]; self.sname = self.userlist[2]; self.id = self.userlist[3]; self.passw = self.userlist[4]
-        # self.isusd = self.userlist[9]; self.iseur = self.userlist[10]; self.isgold = self.userlist[11] 
-
         print("1. Show registry informations\n2. Operate currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n9. Log out\n")
         go = input("Go: ")
         print("")
@@ -226,7 +213,9 @@ class BankCore:
         print("")                  
 
         if(go == "1"):
+            time.sleep(0.2)
             print("Dear {}, you have {} {} in your {} account.\n".format(self.name, str('%.2f'%mny), mnyL + "(s)", mnyU)) 
+            time.sleep(2)
         elif(go == "2"):
             self.payMoney(mny, mnyU, mnyL)         
         elif(go == "3"): 
@@ -244,16 +233,20 @@ class BankCore:
         go = input("Go: ")
         print("")
 
+        time.sleep(0.2)
         if(go == "1"):
             print("Dear {}, you have {} gram(s) in your Gold account.\n".format(self.name, str('%.4f'%self.gold))) 
+            time.sleep(2)
         elif(go == "2"): 
-            print(f"Sale price of gold is:\nTRY: {'%.2f'%self.goldtotl}\nUSD: {'%.2f'%self.goldtousd}\nEUR: {'%.2f'%self.goldtoeur}\n")         
+            print(f"Sale price of gold is:\nTRY: {'%.2f'%self.goldtotl}\nUSD: {'%.2f'%self.goldtousd}\nEUR: {'%.2f'%self.goldtoeur}\n")
+            time.sleep(2)         
         elif(go == "3"): 
             sgoldtl = self.goldtotl - 1.2 
             sgoldusd = self.goldtousd - 0.14
             sgoldeur = self.goldtoeur - 0.12
             print(f"Purchase price of gold is:\nTRY: {'%.2f'%sgoldtl}\nUSD: {'%.2f'%sgoldusd}\nEUR: {'%.2f'%sgoldeur}\n") 
             # numbers are arbitrary
+            time.sleep(2)
         elif(go == "9"):
             self.interface(self.idn)
         else:
@@ -266,6 +259,7 @@ class BankCore:
 
         if(self.isusd or self.iseur or self.isgold): # this statement provides direct exit if no account is created
             print("Please state the currency that you will give.")
+            time.sleep(0.2)
             self.islira = False
             while(self.islira == False): 
                 xlira = input("try / usd / eur / gold: ")
@@ -274,14 +268,18 @@ class BankCore:
                     self.islira = True
                 elif((xlira == "usd" and self.isusd == False) or (xlira == "eur" and self.iseur == False) or (xlira == "gold" and self.isgold == False)):
                     print(f"Since there is no created {xlira.upper()} account, currency exchange operation is not possible\n")
+                    time.sleep(1)
                     self.interface(self.idn)
                 elif((xlira == "try" and self.tl == 0) or (xlira == "usd" and self.usd == 0) or (xlira == "eur" and self.eur == 0) or (xlira == "gold" and self.gold == 0)):
                     print(f"Since you have no currency to exchange in your {xlira.upper()} account, currency exchange operation is not possible\n")
+                    time.sleep(1)
                     self.interface(self.idn)
                 else:
+                    time.sleep(1)
                     print("Please pick one of the currency methods that are stated")
             
             print("Please state the currency that you will get.")
+            time.sleep(0.2)
             self.islira = False
             while(self.islira == False):
                 ylira = input("try / usd / eur / gold: ")
@@ -290,15 +288,19 @@ class BankCore:
                     self.islira = True
                 elif((ylira == "usd" and self.isusd == False) or (ylira == "eur" and self.iseur == False) or (ylira == "gold" and self.isgold == False)):
                     print(f"Since there is no created {ylira.upper()} account, currency exchange operation is not possible\n")
+                    time.sleep(1)
                     self.interface(self.idn)
                 else:
                     print("Please pick one of the currency methods that are stated")  
+                    time.sleep(1)
 
             if(xlira == ylira):
                 print("You can NOT exchange money between same accounts. Plase type responding currency methods again\n")
+                time.sleep(1)
                 self.currencyExchange()
             else:
                 print(f"Please type the amount of {xlira.upper()} that you would like to exchange to {ylira.upper()}:\n")
+                time.sleep(1)
             
             if(xlira == "try" and ylira == "usd"): # printing asset and exchange ratios respecting currency input 
                 if(self.isusd == True):              
@@ -341,17 +343,21 @@ class BankCore:
             while(self.islira == False): # money input and control mechanism
                 try:    
                     print("Type \"0\" to go back to main screen")
+                    time.sleep(0.2)
                     money = float(input(f"{xlira.upper()} to {ylira.upper()} with the amount of: "))
                     if(isinstance(money, float) and money > 0):
                         self.islira = True
                     elif(money == 0):
                         print("\nReturning main screen\n")
+                        time.sleep(0.2)
                         self.islira = True
                         self.interface(self.idn)
                     else:
                         print("Negative amounts are NOT allowed to be exchanged, please try again (press \"0\" to leave)\n")
+                        time.sleep(1)
                 except:
-                    print(f"Please type valid value to exchange {xlira.upper()} with {ylira.upper()}")        
+                    print(f"Please type valid value to exchange {xlira.upper()} with {ylira.upper()}") 
+                    time.sleep(1)       
 
             print("")        
 
@@ -362,6 +368,7 @@ class BankCore:
                     self.usd += addmoney
                     self.insertSQL(self.tl, self.usd, "tl", "usd")
                     print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.upper()}: {'%.2f'%self.usd}\n")
+                    time.sleep(2)  
                 else:
                     self.checkBool(True, "TRY", self.isusd, "USD", self.tl, money) 
             elif(xlira == "try" and ylira == "eur"):
@@ -371,6 +378,7 @@ class BankCore:
                     self.eur += addmoney
                     self.insertSQL(self.tl, self.eur, "tl", "eur")
                     print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.upper()}: {'%.2f'%self.eur}\n")
+                    time.sleep(2)  
                 else:
                     self.checkBool(True, "TRY", self.iseur, "Euro", self.tl, money)    
             elif(xlira == "try" and ylira == "gold"):
@@ -380,6 +388,7 @@ class BankCore:
                     self.gold += addmoney
                     self.insertSQL(self.tl, self.gold, "tl", "gold")
                     print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n")
+                    time.sleep(2)  
                 else:
                     self.checkBool(True, "TRY", self.isgold, "Gold", self.tl, money)     
             elif(xlira == "usd" and ylira == "try"):
@@ -389,6 +398,7 @@ class BankCore:
                     self.tl += addmoney
                     self.insertSQL(self.usd, self.tl, "usd", "tl")
                     print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.upper()}: {'%.2f'%self.tl}\n") 
+                    time.sleep(2)  
                 else:
                     self.checkBool(self.isusd, "USD", True, "TRY", self.usd, money)        
             elif(xlira == "usd" and ylira == "eur"):
@@ -398,6 +408,7 @@ class BankCore:
                     self.eur += addmoney  
                     self.insertSQL(self.usd, self.eur, "usd", "eur")
                     print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.upper()}: {'%.2f'%self.eur}\n")
+                    time.sleep(2)  
                 else:
                     self.checkBool(self.isusd, "USD", self.iseur, "Euro", self.usd, money) 
             elif(xlira == "usd" and ylira == "gold"):
@@ -407,6 +418,7 @@ class BankCore:
                     self.gold += addmoney  
                     self.insertSQL(self.usd, self.gold, "usd", "gold")
                     print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n") 
+                    time.sleep(2)  
                 else:
                     self.checkBool(self.isusd, "USD", self.isgold, "Gold", self.usd, money)          
             elif(xlira == "eur" and ylira == "try"):
@@ -416,6 +428,7 @@ class BankCore:
                     self.tl += addmoney     
                     self.insertSQL(self.eur, self.tl, "eur", "tl")
                     print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.upper()}: {'%.2f'%self.tl}\n")
+                    time.sleep(2)  
                 else:
                     self.checkBool(self.iseur, "Euro", True, "TRY", self.eur, money)   
             elif(xlira == "eur" and ylira == "usd"):
@@ -425,6 +438,7 @@ class BankCore:
                     self.usd += addmoney
                     self.insertSQL(self.eur, self.usd, "eur", "usd")
                     print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.upper()}: {'%.2f'%self.usd}\n")
+                    time.sleep(2)  
                 else:
                     self.checkBool(self.iseur, "Euro", self.isusd, "USD", self.eur, money) 
             elif(xlira == "eur" and ylira == "gold"):
@@ -433,7 +447,8 @@ class BankCore:
                     addmoney = money * self.eurtogold
                     self.gold += addmoney  
                     self.insertSQL(self.eur, self.gold, "eur", "gold")
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n")  
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n") 
+                    time.sleep(2)   
                 else:
                     self.checkBool(self.iseur, "Euro", self.isgold, "Gold", self.eur, money)    
             elif(xlira == "gold" and ylira == "try"):
@@ -443,6 +458,7 @@ class BankCore:
                     self.tl += addmoney  
                     self.insertSQL(self.gold, self.tl, "gold", "tl")
                     print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.tl}\n")
+                    time.sleep(2)  
                 else:
                     self.checkBool(self.isgold, "Gold", True, "TRY", self.gold, money)
             elif(xlira == "gold" and ylira == "usd"):
@@ -452,6 +468,7 @@ class BankCore:
                     self.usd += addmoney  
                     self.insertSQL(self.gold, self.usd, "gold", "usd")
                     print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.usd}\n")
+                    time.sleep(2)  
                 else:
                     self.checkBool(self.isgold, "Gold", self.isusd, "USD", self.gold, money)        
             elif(xlira == "gold" and ylira == "eur"):
@@ -460,7 +477,8 @@ class BankCore:
                     addmoney = money * self.goldtoeur
                     self.eur += addmoney 
                     self.insertSQL(self.gold, self.eur, "gold", "eur") 
-                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.eur}\n")  
+                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.eur}\n")
+                    time.sleep(2)  
                 else:
                     self.checkBool(self.isgold, "Gold", self.iseur, "Euro", self.gold, money)  
             else:
@@ -482,13 +500,16 @@ class BankCore:
         self.isusd, self.iseur, self.isgold 
         if(self.isusd == False or self.iseur == False or self.isgold == False):     
             print("Please select respective number to create currency account\n")
+            time.sleep(0.2)
             print("1. USD Account\n2. EUR Account\n3. Gold Account\n9. Return main screen\n")
+            time.sleep(0.2)
             go = input("Go: ")
             print("")
-        
+            time.sleep(0.2)
         
             if(go == "1" and self.isusd == True):
                 print("Your USD account is already created\n")
+                time.sleep(1)
             elif(go == "1"):
                 psw = input("Please type your password to create a USD balance: ")
                 print("")
@@ -498,11 +519,14 @@ class BankCore:
                     idu = self.idn + 1
                     sql = f"Update users Set isusd = {self.isusd} where idusers = {idu}"
                     self.mycursor.execute(sql)
+                    time.sleep(1)
                 else:
                     print("Password is incorrect, going back to main screen\n")
+                    time.sleep(1)
                     self.interface(self.idn)
             if(go == "2" and self.iseur == True):
                 print("Your EUR account is already created\n")
+                time.sleep(1)
             elif(go == "2"):
                 psw = input("Please type your password to create a EUR balance: ")
                 print("")
@@ -512,11 +536,14 @@ class BankCore:
                     sql = f"Update users Set iseur = {self.iseur} where idusers = {idu}"
                     self.mycursor.execute(sql)
                     print("Euro account is created!\n")
+                    time.sleep(1)
                 else:
                     print("Password is incorrect, going back to main screen\n")
+                    time.sleep(1)
                     self.interface(self.idn)
             if(go == "3" and self.isgold == True):
                 print("Your Gold account is already created\n")
+                time.sleep(1)
             elif(go == "3"):
                 psw = input("Please type your password to create a Gold account: ")
                 print("")
@@ -526,13 +553,16 @@ class BankCore:
                     sql = f"Update users Set isgold = {self.isgold} where idusers = {idu}"
                     self.mycursor.execute(sql)       
                     print("Gold account is created!\n")
+                    time.sleep(1)
                 else:
                     print("Password is incorrect, going back to main screen\n")
+                    time.sleep(1)
                     self.interface(self.idn)
             if(go == "9"):
                 self.interface(self.idn)
             if(go != "1" and go != "2" and go != "3" and go != "9"): 
                 print("Your statement is invalid")
+                time.sleep(1)
                 self.createCurrency()
             
             try:
@@ -544,23 +574,29 @@ class BankCore:
         
         else:
             print("You have already all the accounts\nNo account available to create\n")
+            time.sleep(1)
 
 
     def checkBool(self, bool1, m1, bool2, m2, unit, mny): 
+        time.sleep(0.2)
         bool3 = False
         if(unit <= mny):
             bool3 = True
         if(bool1 == False):
             print(f"You do NOT have {m1} account for exchange operations\n")
             bool3 = False
+            time.sleep(1)
         if(bool2 == False):
             print(f"You do NOT have {m2} account for exchange operations\n") 
             bool3 = False
+            time.sleep(1)
         if(bool3 == True):
             print(f"You do NOT have sufficient {m1} to exchange it with {m2}\n") 
+            time.sleep(1)
 
 
     def nameCorrection(self):
+        time.sleep(0.2)
         self.name = input("Name: ")
         print("")
 
@@ -571,18 +607,22 @@ class BankCore:
         if(len(self.name) > 13 or len(self.name) < 2):
             isuser = False
             print("Your name can NOT be less than two and more than thirteen characters\n")
+            time.sleep(1)
         elif any(char.isdigit() for char in self.name): 
             isuser = False
             print("Your name can NOT have digit(s)\n")
+            time.sleep(1)
         elif any(char in specialChar for char in self.name):
             isuser = False
             print("Your name can NOT have special character(s)\n")
+            time.sleep(1)
         if(isuser == True):
             return isuser
         else:
             self.nameCorrection()
 
     def snameCorrection(self):
+        time.sleep(0.2)
         self.sname = input("Surname: ")
         print("")
 
@@ -592,18 +632,22 @@ class BankCore:
         if(len(self.sname) > 15 or len(self.sname) < 2):
             isuser = False
             print("Your name can NOT be less than three and more than thirteen characters\n")
+            time.sleep(1)
         elif any(char.isdigit() for char in self.sname): 
             isuser = False
             print("Your surname can NOT have digit(s)\n")
+            time.sleep(1)
         elif any(char in specialChar for char in self.sname): # that is general usage
             isuser = False
             print("Your surname can NOT have special character(s)\n")
+            time.sleep(1)
         if(isuser == True):
             return isuser
         else:
             self.snameCorrection()
 
     def idCorrection(self): 
+        time.sleep(0.2)
         self.id = input("Identity number: ")
         print("")
         
@@ -613,15 +657,18 @@ class BankCore:
         if not(int(len(self.id)) == 11):
             isuser = False
             print("Identity number must have 11 digits\n")
+            time.sleep(1)
         elif not all(char in nums for char in self.id):
             isuser = False
             print("Identity number only consist of integers\n")
+            time.sleep(1)
         if(isuser == True):
             return isuser
         else:
             self.idCorrection()    
 
     def passwCorrection(self): 
+        time.sleep(0.2)
         self.passw = input("Password: ")
         print("")
 
@@ -632,18 +679,23 @@ class BankCore:
         if(len(self.passw) > 15 or len(self.passw) < 8):
             isuser = False
             print("Your password can NOT be less than eigth and more than fifteen characters\n")
+            time.sleep(1)
         elif any(char in specialChar for char in self.passw): # that is general usage
             isuser = False
             print("Your password can NOT have special character(s)\n")
+            time.sleep(1)
         elif not any(char.isdigit() for char in self.passw):
             isuser = False
             print("Password must have at least one digit\n")
+            time.sleep(1)
         elif not any(char.isupper() for char in self.passw):
             print("Password must have at least one upper character\n")
             isuser = False
+            time.sleep(1)
         elif not any(char.islower() for char in self.passw):
             print("Password must have at least one lower character*n")
             isuser = False 
+            time.sleep(1)
         if(isuser == True):
             return isuser
         else:
@@ -670,18 +722,21 @@ class BankCore:
                 self.account(self.usd, "USD", "dollar", self.idn)
             else:
                 print("You do NOT have US Dollar account to operate it.\n")
+                time.sleep(1)
                 self.interface(self.idn)
         elif(go == "3"):
             if(self.iseur == True):
                 self.account(self.eur, "EUR", "euro", self.idn)
             else:
                 print("You do NOT have Euro account to operate it.\n")
+                time.sleep(1)
                 self.interface(self.idn)
         elif(go == "4"):
             if(self.isgold == True):    
                 self.goldAccount()
             else:
                 print("You do NOT have Gold account to operate it.\n")
+                time.sleep(1)
                 self.interface(self.idn)
         elif(go == "9"):
             self.interface(self.idn)
@@ -707,6 +762,7 @@ class BankCore:
                 print("")
                 print("Please type numerical values only")
         
+        time.sleep(0.2)
         idu = self.idn + 1
         if(increment != 0): 
             if(m1 == "TRY"):
@@ -715,17 +771,21 @@ class BankCore:
                 sql = f"Update users Set tl = {self.tl} where idusers = {idu}"
                 self.mycursor.execute(sql)
                 print(f"{m1} balance is updated as {'%.2f'%self.tl} {m2}\n")
+                time.sleep(1)
             elif(m1 == "USD"):
                 self.usd += themoney
                 sql = f"Update users Set usd = {self.usd} where idusers = {idu}"
                 self.mycursor.execute(sql)
                 print(f"{m1} balance is updated as {'%.2f'%self.usd} {m2}\n")
+                time.sleep(1)
             elif(m1 == "EUR"):
                 self.eur += themoney
                 sql = f"Update users Set eur = {self.eur} where idusers = {idu}"
                 self.mycursor.execute(sql)
                 print(f"{m1} balance is updated as {'%.2f'%self.eur} {m2}\n")
-                
+                time.sleep(1)
+
+            time.sleep(0.2)    
             try:
                 self.mydb.commit()
             except mysql.connector.Error as err:
@@ -759,6 +819,7 @@ class BankCore:
                     print("")
                     print("Please type numerical values only")
             
+            time.sleep(0.2)
             if(decrement != 0):
                 if(m1 == "TRY" and (self.tl - themoney >= 0)):
                     self.tl -= themoney
@@ -766,22 +827,26 @@ class BankCore:
                     sql = f"Update users Set tl = {self.tl} where idusers = {idu}"
                     self.mycursor.execute(sql)
                     print(f"{m1} balance is updated as {'%.2f'%self.tl} {m2}\n")
+                    time.sleep(1)
                 elif(m1 == "USD" and (self.usd - themoney >= 0)):
                     self.usd -= themoney
                     idu = self.idn + 1
                     sql = f"Update users Set usd = {self.usd} where idusers = {idu}"
                     self.mycursor.execute(sql)
                     print(f"{m1} balance is updated as {'%.2f'%self.usd} {m2}\n")
+                    time.sleep(1)
                 elif(m1 == "EUR" and (self.eur - themoney >= 0)):
                     self.eur -= themoney
                     idu = self.idn + 1
                     sql = f"Update users Set eur = {self.eur} where idusers = {idu}"
                     self.mycursor.execute(sql)
                     print(f"{m1} balance is updated as {'%.2f'%self.eur} {m2}\n")
+                    time.sleep(1)
                 else:
                     themoney += decrement # this is not necessarry
                     print(f"You have insufficient currency to withdraw {'%.2f'%decrement} {m2}.\nNo currency is withdrawn.\n")
                 
+                time.sleep(0.2)
                 try:
                     self.mydb.commit()
                 except mysql.connector.Error as err:
@@ -795,9 +860,11 @@ class BankCore:
 
     def printAsset(self, assMoney1, assMny1, assMoney2, assMny2, excRatio):
         print(f"Your asset in {assMny1} and {assMny2} accounts:")
-        print(f"|    {assMny1}: {'%.2f'%assMoney1}    |    {assMny2}: {'%.2f'%assMoney2}    |") 
+        print(f"|    {assMny1}: {'%.2f'%assMoney1}    |    {assMny2}: {'%.2f'%assMoney2}    |")
+        time.sleep(0.2) 
         print(f"Exchange ratio of", end = " ") 
         print(f"{assMny1} to {assMny2}: {'%.5f'%excRatio}\n")  
+        time.sleep(2)
 
 
     def insertSQL(self, mny2, mny4, mny1, mny3):
@@ -813,6 +880,7 @@ class BankCore:
             bool = False
             while(bool == False):
                 go = input("Go: ")
+                time.sleep(0.2)
                 print("")
                 if(go == "0"):
                     self.interface(self.idn)
@@ -820,6 +888,7 @@ class BankCore:
                     bool = True
                 else:
                     print("Please only type respective number\Press \"0\" to return\n") 
+                    time.sleep(0.2)
 
             if(go == "1" or go == "2" or go == "3"):
                 if(go == "1"):
@@ -827,15 +896,18 @@ class BankCore:
                         self.transferCurrency("TRY", "lira", self.tl, "tl", "tl", True) # method must be handled for this section
                     else:
                         print("You do NOT have any currency in your TRY account\n")
+                        time.sleep(1)
 
                 elif(go == "2"):
                     if(self.isusd == True and self.usd > 0):
                         self.transferCurrency("USD", "dollar", self.usd, "usd", "isusd", False)
                     elif(self.isusd == False): 
                         print("You do NOT have USD account to send currency\n")
+                        time.sleep(1)
                         self.interface(self.idn)
                     elif(self.usd == 0):
                         print("You do NOT have any currency in your USD account\n")
+                        time.sleep(1)
                         self.interface(self.idn)
 
                 elif(go == "3"):
@@ -843,13 +915,16 @@ class BankCore:
                         self.transferCurrency("EUR", "euro", self.eur, "eur", "iseur", False)
                     elif(self.iseur == False):
                         print("You do NOT have EUR account to send currency\n")
+                        time.sleep(1)
                         self.interface(self.idn)
                     elif(self.eur == 0):
                         print("You do NOT have any currency in your EUR account\n")
+                        time.sleep(1)
                         self.interface(self.idn)
 
         else:
             print("There is no money in any of your currency account to transfer\nGoing back to the main screen\n")
+            time.sleep(1)
             self.interface(self.idn)
     
         try:
@@ -863,18 +938,20 @@ class BankCore:
     def transferCurrency(self, moneytype, moneyunit, money, lmoney, ismoneyy, tlpass):
         idu = self.idn + 1
         print(f"Please type identity number of the user to send {moneytype}\nPress \"0\" to return\n")
+        time.sleep(0.2)
         bool = False; boool = False
         while(bool == False): # this while structure is little bit nonsense
             toUser = input("Identity Number: ")
             print("")
             if(toUser == "0"):
                 print("Going back to the main screen")
+                time.sleep(0.2)
                 boool = True
             if(toUser != self.id):
                 bool = True
             else:
                 print("You can NOT send currency to your account. Please try again\nPress \"0\" to return")
-        print("")
+                time.sleep(0.2)
 
         bool = False
         for data in self.database:
@@ -892,9 +969,11 @@ class BankCore:
                                 ismoney = True
                             else:           
                                 print("Please type a positive value to operate")
+                                time.sleep(0.2)
                         except:
                             print("")
                             print("Please type numerical values only")
+                            time.sleep(0.2)
                     
                     if(sendMoney != 0):
                         if(sendMoney <= money):
@@ -904,27 +983,33 @@ class BankCore:
                             self.mycursor.execute(f"Select {lmoney} from users where id = {data[3]}")
                             sentMoney = self.mycursor.fetchone()
                             print(f"{sendMoney} {moneyunit}(s) is sent successfully\n")
+                            time.sleep(1)
                             senMoney = "%s" % (sentMoney) # I apply this structure first
                             sendMoney += float(senMoney) 
                             sql2 = f"Update users Set {lmoney} = {sendMoney} where id = {data[3]}"
                             self.mycursor.execute(sql2)
-                        else:
+                        else:       
                             print("Your balance is not enough to transfer\n")
+                            time.sleep(1)
                             self.interface(self.idn)
                     else:
                         print("Going back to the main screen\n")
+                        time.sleep(1)
                         self.interface(self.idn)
                 else:
                     print(f"Respective user do NOT have {moneytype} account to accept any balance\n")
+                    time.sleep(1)
                     self.interface(self.idn)
+
         if(bool == False and toUser != "0"):
             print("There is no such registered identity number\n")
+            time.sleep(1)
             self.interface(self.idn)
         elif(boool == True):
             self.interface(self.idn)
         elif(str(checkBalance) != "(1,)" and tlpass == False):
             print(f"Respective user does NOT have {moneytype} account to accept currency\n")
-
+            time.sleep(1)
 
 #-----Execution-----#
 

@@ -1,9 +1,8 @@
 # implement a structure that shows only existing accounts in that list (optional) interface --> go: 2
-# i can limit minimum and maximum value for all money related methods
 # oprHistory shows only date, you can adjust it as date & time as well
 
-# i can add a commission fee for transfer operation such as 2.5 currency unit
-
+# upper limit can be made to not gain error from mySQL for currencies, since upper limit of depositing is 1000000, it is..
+# ..not easy to exceed limit
 
 import random
 import json
@@ -13,7 +12,6 @@ import time
 import mysql.connector
 import datetime
 
-
 class BankCore:
     def __init__(self):
 
@@ -22,10 +20,8 @@ class BankCore:
         self.eur = 0
         self.gold = 0
 
-        self.userlist = []
         self.idn = 0
         self.iban = ""
-        self.actions = ""
 
         # this variables are instantiate with the ratio of respective currencies when currencyExchange() is adressed
         self.tltousd = 0
@@ -51,7 +47,7 @@ class BankCore:
         self.isgold = False
 
 
-    print("Welcome to bankCore version (2.4)!\nPlase type regarding number for the next operation.\n")
+    print("Welcome to bankCore version (2.5)!\nPlase type regarding number for the next operation.\n")
 
     def menu(self):
         print("1. Log in\n2. Create a new account\n3. About bankCore\n9. Exit\n")
@@ -135,6 +131,8 @@ class BankCore:
 
         print("Your account is created\n")
         self.createUser(self.name, self.sname, self.id, self.passw, self.iban)
+        # self.oprHistory(2, 6, 0, 0, "", 0, 0, 0, "")
+        # self.mydb.commit() 
 
     def createUser(self, name, sname, id, passw, iban):
 
@@ -157,19 +155,21 @@ class BankCore:
         act = (cid, None, None, None, None, None, None, None, None, None, None) # actions are left as 'NULL'
         acting = "INSERT INTO actions(id, act1, act2, act3, act4, act5, act6, act7, act8, act9, act10) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         self.mycursor.execute(acting, act)
+        # i recruit that since there is no allocated space for nwe user, oprHistory is writing the first user's history last + 1 = initial
+        # it seems it has circular structure for users
 
-        values = (cid, name, sname, id, passw, "0", "0", "0", "0", "0", "0", "0", iban)
-        sql = "INSERT INTO users(idusers, uname, sname, id, passw, tl, usd, eur, gold, isusd, iseur, isgold, iban) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        values = (cid, name, sname, id, passw, "0", "0", "0", "0", "0", "0", "0", iban, "0")
+        sql = "INSERT INTO users(idusers, uname, sname, id, passw, tl, usd, eur, gold, isusd, iseur, isgold, iban, card) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         self.mycursor.execute(sql, values)
-        self.oprHistory(2, 6, 0, 0, "", 0, 0, 0, "")
-
+        
         try:
             self.mydb.commit()
         except mysql.connector.Error as err:
             print("MySQL server does not respond: ", err)
 
-        # there were essential variables that equal "0"
-        # return self.users
+        cid = cid - 1
+        self.oprHistory(2, 6, 0, 0, "", 0, 0, 0, "")
+        self.mydb.commit()
 
     def printUser(self):
         print("Informations of the user are listed.")
@@ -208,7 +208,7 @@ class BankCore:
             time.sleep(1)
         elif(go == "6"):
             print("Hello, I am Cemil Şahin and I code this program within 27 days (current version is 2.0)\nIf you have any issue, you can contact with the developer by using the e-mail below:")
-            print("\"derdinekeder_alayinagider_asaletinyeter_kasapceko@sagolare.com\"\n")
+            print("\"derdinekeder_alayinagider_asaletinyeter_kasapceko@sagolera.com\"\n")
             time.sleep(4)
             print("Just kidding, use this: \"cemils18@gmail.com\"\n")
             time.sleep(1)
@@ -228,7 +228,7 @@ class BankCore:
         self.mycursor.execute("Select * From users")
         self.database = self.mycursor.fetchall()
 
-        print("1. Show registry operations\n2. Operate currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n6. Operation History\n9. Log out\n")
+        print("1. Show registry operations\n2. Operate currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n6. Operation History\n7. Virtual card | coreCard\n9. Log out\n")
         go = input("Go: ")
         print("")
 
@@ -252,6 +252,10 @@ class BankCore:
 
         elif(go == "6"):
             self.oprHistory(1, 0, 0, 0, 0, 0, 0, 0, "")
+        
+        elif(go == "7"):
+            print("1. Monitor personal cardCore\n2. Create an virtual card | cardCore\n9. Return to the main screen\n")
+            self.cardMaker(1)
 
         elif(go == "9"):
             self.mydb.close()
@@ -321,7 +325,7 @@ class BankCore:
             self.interface(self.idn)
         elif psw == self.passw and a == 1:
             time.sleep(0.2)
-            print("Please type your new password\nIt must include: 8 - 15 characters, upper letter, lower letter, digit, no special character")
+            print("Please type your new password\nIt must include: 8 - 15 characters, upper letter, lower letter, digit, no special character\n")
             self.passwCorrection()
             psw = str(self.passw)
             self.mycursor.execute(f"Update users Set passw = '{psw}' where id = {self.id}") # when I do not use single quote, mysql thinks that the
@@ -442,18 +446,19 @@ class BankCore:
             time.sleep(1)
 
             #-- THE VALUES MAY NOT BE UP-TO-DATE! --#
-            self.tltousd = 0.117
-            self.usdtotl = 8.524
-            self.tltoeur = 0.0994
-            self.eurtotl = 10.064
-            self.tltogold = 0.002016
-            self.goldtotl = 496.052
-            self.usdtoeur = 0.847
-            self.eurtousd = 1.1806
-            self.goldtousd = 58.2916
-            self.usdtogold = 0.017155
-            self.goldtoeur = 49.3588
-            self.eurtogold = 0.02026
+            self.tltousd = 0.11868
+            self.usdtotl = 8.42632
+            self.tltoeur = 0.10112
+            self.eurtotl = 9.88894
+            self.tltogold = 0.00206
+            self.goldtotl = 484.65990
+            self.usdtoeur = 0.85210
+            self.eurtousd = 1.17358
+            self.goldtousd = 57.51738
+            self.usdtogold = 0.01739
+            self.goldtoeur = 49.01028
+            self.eurtogold = 0.02040
+            # values can be got from updatecurrencies.py file from time to time
 
         self.tl, self.usd, self.eur, self.gold
 
@@ -912,6 +917,7 @@ class BankCore:
 
     def passwCorrection(self):
         time.sleep(0.2)
+        oldpsw = self.passw 
         self.passw = input("Password: ")
         print("")
 
@@ -919,7 +925,13 @@ class BankCore:
 
         self.turnBack(self.passw, self.menu)
         isuser = True
-        if(len(self.passw) > 15 or len(self.passw) < 8):
+        if(self.passw == "0"):
+            self.passw = oldpsw
+            self.interface(self.idn)
+        elif(oldpsw == self.passw):
+            isuser = False
+            print("Your password can NOT be the same with the old one\n")
+        elif(len(self.passw) > 15 or len(self.passw) < 8):
             isuser = False
             print("Your password can NOT be less than eigth and more than fifteen characters\n")
             time.sleep(1)
@@ -955,7 +967,7 @@ class BankCore:
         #         "0" + rand
         #         res -= 1
 
-        self.iban = "TR26343788131000" + rand # rest 10 number will be random for each user
+        self.iban = "TR26343788131000" + rand # rest 10 nuember will be random for each user
 
 
     def turnBack(self, inputVar, method):
@@ -1008,15 +1020,17 @@ class BankCore:
         ismoney = False
         while(ismoney == False):
             try:
+                s = "(s)"
                 increment = float(input(f"{m1}: "))
                 print("")
                 if(increment == 0):
                     ismoney = True
+                elif(increment > 1000000):
+                    print(f"The maximum lodgement amount is 1000000 {m2 + s}")
                 elif(isinstance(increment, float) and increment >= 10):
                     themoney += floor(increment)
                     ismoney = True
                 elif(increment > 0 and increment < 10):
-                    s = "(s)"
                     print(f"The minimum lodgement amount is 10 {m2 + s}")
                 else:
                     print("Please type a positive value to operate")
@@ -1147,6 +1161,7 @@ class BankCore:
         if(a == 1):
             print(f"Your asset in {assMny1} account:")
             print(f"|    {assMny1}: {'%.2f'%assMoney1}    |\n")
+            print(f"Transfer fee: 0.00 {assMny1}")
             time.sleep(1)
         elif(a == 2):
             print(f"Your asset in {assMny1} account decreased to:")
@@ -1250,6 +1265,7 @@ class BankCore:
                 ismoney = False
                 if(str(checkBalance) == "(1,)" or tlpass == True): # couldn't convert checkBalance boolean, found a way like this
                     self.printAsset(money, moneytype, 1)
+
                     while(ismoney == False):
                         try:
                             sendMoney = float(input(f"{moneytype}: "))
@@ -1356,23 +1372,19 @@ class BankCore:
             self.interface(self.idn)
         print("")
 
-    def oprHistory(self, type1, type2, depo, withd, curType, tranMoney, toWhom, transMoney, curnType): # moneytype, datetime, iban, moneytype1, moneytype2, moneyaccount
-        
-
-        self.actions 
-
+    def oprHistory(self, type1, type2, depo, withd, curType, tranMoney, toWhom, transMoney, curnType): 
+        # i canceled create account notation for history since it causes harsh problems to solve, besides there is not that much need for it
         if type1 == 1:
             idu = self.idn + 1
             self.mycursor.execute(f"Select * from actions where id = {idu}")
             operations = self.mycursor.fetchall()
-            self.actions = str(operations)
             i = 1
             print("Account's most recent operations are listed (from More Current to Less)")
             time.sleep(1)
             for o in operations:
-                while i < 10:
+                while i <= 10:
                     time.sleep(0.2)
-                    if o[i] != "on":
+                    if o[i] != "on" and o[i] != None:
                         act = o[i].split(",")
                         if act[0] == "1":
                             print(f"{i}-", end = " ")
@@ -1401,11 +1413,13 @@ class BankCore:
                             print(f"Currency Exchange - {act[4].upper()}: {'%.2f'%act[3]} is exchanged with {act[2].upper()}: {'%.2f'%act[1]} | {act[5]} ")
                         elif act[0] == "6":
                             print(f"{i}-", end = " ")
-                            print(f"Welcome! - Your account is created. Thank you to prefer bankCore | {act[1]}")
+                            print(f"Virtual Card - Your cardCore is created | {act[1]}")
                         elif act[0] == "7":
                             print(f"{i}-", end = " ")
                             print(f"Password Change - Password is changed | {act[1]}")
-
+                    else:
+                        if(i == 9):
+                            print("- No operation made")
                     i += 1
 
             time.sleep(2)
@@ -1426,7 +1440,8 @@ class BankCore:
 
             # timenow = datetime.datetime.now() # for date and precise hour
             timenow = datetime.date.today() # just for date
-            
+
+            operation = ""
             if type2 == 0:
                 pass
             elif type2 == 1:
@@ -1439,21 +1454,102 @@ class BankCore:
                 operation = "4," + str(tranMoney) + "," + str(curType) + "," + str(toWhom) + "," + str(timenow)
             elif type2 == 5:
                 operation = "5," + str(tranMoney) + "," + str(curType) + "," + str(transMoney) + "," + str(curnType) + "," + str(timenow)
-            elif type2 == 6:
-                operation = "6," + str(timenow)
+            # elif type2 == 6:
+            #     operation = "6," + str(timenow) 
             elif type2 == 7:
                 operation = "7," + str(timenow)
 
-            self.actions = operation
-            operation = str(operation)
+            
             self.mycursor.execute(f"Update actions Set act1 = '{operation}' where id = {idu}")
+
+
+    def cardMaker(self, a): # cdate as xx/xx | 2 spaces for cardnumber
+        idu = self.idn + 1
+        self.mycursor.execute(f"Select card from users where idusers = {idu}")
+        cardinfo = self.mycursor.fetchone()
+        cardinfo = str(cardinfo)
+        cardinf = cardinfo[2:] 
+        cardinfo = cardinf[:-3] 
+        passgate = cardinfo.split(",")
+        
+        if a == 1:
+            bool = False
+            while bool == False:
+                go = input("Go: ")
+                if go == "1" or go == "2" or go == "9":
+                    print("")
+                    bool = True
+                else: 
+                    print("Please type respective number to go\n")
+        else:
+            go = "3"
+        
+        if (a == 0 or go == "2"):
+            if passgate[0] == "0": # check that if its passgate[0]   
+                psw = input("Please type your password to create cardCore: ")
+                print("")
+
+                if(psw == self.passw):
+                    cardnumber = str(random.randint(1000, 9999)) + "  " + str(random.randint(1000, 9999))
+                    cno = random.randint(100, 999)
+                    today = datetime.date.today()
+                    cdate = datetime.timedelta(days = 2520)
+                    cdate = str(today + cdate) 
+                    x = cdate.split("-")
+                    cdate = x[0][2:] + "/" + x[1]
+                    cardinfo = "1," + str(cardnumber) + "," + str(cdate) + "," + str(cno)
+                    self.mycursor.execute(f"Update users Set card = '{cardinfo}' where id = {self.id}") 
+                    self.mydb.commit()
+                    print("Virtual card cardCore is created!\n")
+                    self.oprHistory(2, 6, 0, 0, "", 0, 0, 0, "")
+                    time.sleep(2)
+                else:
+                    print("Password is incorrect, going back to main screen\n")
+                    time.sleep(1)
+                    self.interface(self.idn)
+
+            elif passgate[0] == "1":
+                print("You already have virtual coreCard\nCan NOT create anymore before it expires\n")
+                time.sleep(1)
+                self.interface(self.idn)
+
+        if (go == "1"):
+            if passgate[0] == "1":    
+                
+                print("Your personal coreCard")
+                print( f" ______________________________________\n|                                      |\n|  coreCard                            |")
+                print(f"|                                      |\n|                                      |\n|        3465  2613  {passgate[1]}        |")
+                print(f"|                                      |\n|                       {passgate[2]}     VISA |\n|______________________________________|")
+                time.sleep(1)
+
+                print( f" ______________________________________\n|                                      |\n|██████████████████████████████████████|")
+                print(f"|██████████████████████████████████████|\n|                                      |\n|   𓅃   ███████████{passgate[3]}                 |")
+                print(f"|                                      |\n|                                      |\n|______________________________________|\n\n")
+                time.sleep(2)
+
+            elif passgate[0] == "0":
+                print("You do NOT have personal coreCard to display\n")
+                time.sleep(1)
+                print("Would you like to create new virtual card | coreCard?\n1. Accept\n2. Refuse\n")
+                time.sleep(2)
+                bool = False
+                while bool == False:
+                    go = input("Go: ")
+                    if go == "1" or go == "2" or go == "0":
+                        print("")
+                        bool = True
+                    else: 
+                        print("Please type respective number to go\n")
+
+                if go == "1":
+                    self.cardMaker(0)
+                else:
+                    self.interface(self.idn)        
 
 
 #-----Execution-----#
 
 exe = BankCore()
 exe.menu() # this is the main program
-# exe.interface(0) # for experimenting usages, some of the functions may not operate properly
-# exe.currencyExchange() # for experimenting usages, some of the functions may not operate properly
 
 #-----Execution-----#

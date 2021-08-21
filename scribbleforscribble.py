@@ -1,5 +1,6 @@
 # implement a structure that shows only existing accounts in that list (optional) interface --> go: 2
 # oprHistory shows only date, you can adjust it as date & time as well
+# Prosperity of this card belongs to bankCore # add that to second-low line for back side
 
 # upper limit can be made to not gain error from mySQL for currencies, since upper limit of depositing is 1000000, it is..
 # ..not easy to exceed limit
@@ -125,7 +126,8 @@ class BankCore:
         self.idCorrection()
 
         print("Your password must consist of:\n8 - 15 characters,\nAt least one upper letter,\nAt least one lower letter,\nAt least one digit,\nNo special characters.\n")
-        self.passwCorrection()
+        b = False
+        self.passwCorrection(b)
 
         self.createIBAN()
 
@@ -167,9 +169,6 @@ class BankCore:
         except mysql.connector.Error as err:
             print("MySQL server does not respond: ", err)
 
-        cid = cid - 1
-        self.oprHistory(2, 6, 0, 0, "", 0, 0, 0, "")
-        self.mydb.commit()
 
     def printUser(self):
         print("Informations of the user are listed.")
@@ -305,10 +304,11 @@ class BankCore:
             if(self.isgold == True):
                 print(f"GOLD: {'%.2f'%self.gold} gram(s)\n")
             else:
-                print(f"GOLD: Nonactivated\n")
+                print(f"GOLD: Nonactivaated\n")
             time.sleep(2)
         elif(go == "3"):
             print("Please type your current password first to change with new")
+            
             self.acceptPassw(1)
             self.oprHistory(2, 7, 0, 0, 0, 0, 0, 0, 0)
             self.mydb.commit()
@@ -321,12 +321,13 @@ class BankCore:
         psw = input("Password: ")
         time.sleep(0.2)
         print("")
-        if psw == "0":
+        if psw == "9":
             self.interface(self.idn)
         elif psw == self.passw and a == 1:
             time.sleep(0.2)
             print("Please type your new password\nIt must include: 8 - 15 characters, upper letter, lower letter, digit, no special character\n")
-            self.passwCorrection()
+            b = True
+            self.passwCorrection(b)
             psw = str(self.passw)
             self.mycursor.execute(f"Update users Set passw = '{psw}' where id = {self.id}") # when I do not use single quote, mysql thinks that the
             # .. password itself is a column
@@ -351,7 +352,7 @@ class BankCore:
                 self.registryOperations()
 
         else:
-            print("Your current password is incorrect\nType \"0\" to return main screen\n")
+            print("Your current password is incorrect\nType \"9\" to return main screen\n")
             time.sleep(1)
             self.registryOperations()
 
@@ -894,11 +895,11 @@ class BankCore:
         else:
             self.snameCorrection()
 
-    def idCorrection(self):
+    def idCorrection(self): 
         time.sleep(0.2)
+
         self.id = input("Identity number: ")
         print("")
-
         self.turnBack(self.id, self.menu)
         nums = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
         isuser = True
@@ -910,12 +911,40 @@ class BankCore:
             isuser = False
             print("Identity number only consist of integers\n")
             time.sleep(1)
+        
+        x = 0; y = 0; z = 0
+        try:
+            a = 0
+            while 2*a <= 8:
+                y += int(self.id[2*a])
+                a += 1   
+            a = 0
+            while 2*a + 1 <= 7:
+                z += int(self.id[2*a+1])
+                a += 1
+            for i in self.id[:-1]:
+                x += int(i)
+            
+            q1 = (7*y + 9*z); q1 = str(q1)
+            q2 = (7*y - z); q2 = str(q2)
+            x = str(x)
+            # print(self.id[10], self.id[-1], self.id[9], q1[-1], q2[-1], x[-1:])
+            if(x[-1:] == self.id[10] and self.id[-1] == x[-1] and q1[-1] == self.id[9] and q2[-1] == self.id[9]):
+                pass
+            else:
+                print("Identity number is not valid\n")
+                isuser = False
+                time.sleep(1)
+        except:
+            print("Identity number only consist of integers\n")
+            time.sleep(1)
+
         if(isuser == True):
             return isuser
         else:
             self.idCorrection()
 
-    def passwCorrection(self):
+    def passwCorrection(self, b):
         time.sleep(0.2)
         oldpsw = self.passw 
         self.passw = input("Password: ")
@@ -923,12 +952,15 @@ class BankCore:
 
         specialChar = ["!","'","^","+","%","&","/","(",")","=","?","_","-","*","|","\"","}","]","[","{","½","$","#","£",">","<",":",".","`",";",",","<","é","æ","ß","@","€","¨","~","´","\\", " ", "\t", "\b"]
 
-        self.turnBack(self.passw, self.menu)
         isuser = True
-        if(self.passw == "0"):
+        if(self.passw == "9" and b == True):
             self.passw = oldpsw
             self.interface(self.idn)
-        elif(oldpsw == self.passw):
+        elif(self.passw == "9" and b == False):
+            self.menu()
+        
+        self.turnBack(self.passw, self.menu)
+        if(oldpsw == self.passw):
             isuser = False
             print("Your password can NOT be the same with the old one\n")
         elif(len(self.passw) > 15 or len(self.passw) < 8):
@@ -954,7 +986,7 @@ class BankCore:
         if(isuser == True):
             return isuser
         else:
-            self.passwCorrection()
+            self.passwCorrection(b)
 
 
     def createIBAN(self): # IBAN: TR26 3437 8813 1000 xxxx xxxx xx
@@ -1454,8 +1486,8 @@ class BankCore:
                 operation = "4," + str(tranMoney) + "," + str(curType) + "," + str(toWhom) + "," + str(timenow)
             elif type2 == 5:
                 operation = "5," + str(tranMoney) + "," + str(curType) + "," + str(transMoney) + "," + str(curnType) + "," + str(timenow)
-            # elif type2 == 6:
-            #     operation = "6," + str(timenow) 
+            elif type2 == 6:
+                operation = "6," + str(timenow) 
             elif type2 == 7:
                 operation = "7," + str(timenow)
 

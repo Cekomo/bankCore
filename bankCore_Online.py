@@ -1450,6 +1450,90 @@ class BankCore:
             self.interface(self.idn)
         print("")
 
+    def cardMaker(self, a): # cdate as xx/xx | 2 spaces for cardnumber
+        idu = self.idn + 1
+        self.mycursor.execute(f"Select card from users where idusers = {idu}")
+        cardinfo = self.mycursor.fetchone()
+        cardinfo = str(cardinfo)
+        cardinf = cardinfo[2:] 
+        cardinfo = cardinf[:-3] 
+        passgate = cardinfo.split(",")
+        
+        if a == 1:
+            bool = False
+            while bool == False:
+                go = input("Go: ")
+                if go == "1" or go == "2" or go == "9":
+                    print("")
+                    bool = True
+                else: 
+                    print("Please type respective number to go\n")
+        else:
+            go = "3"
+        
+        if (a == 0 or go == "2"):
+            if passgate[0] == "0": # check that if its passgate[0]   
+                psw = input("Please type your password to create cardCore: ")
+                print("")
+
+                if(psw == self.passw):
+                    cardnumber = str(random.randint(1000, 9999)) + "  " + str(random.randint(1000, 9999))
+                    cno = random.randint(100, 999)
+                    today = datetime.date.today()
+                    cdate = datetime.timedelta(days = 2520)
+                    cdate = str(today + cdate) 
+                    x = cdate.split("-")
+                    cdate = x[0][2:] + "/" + x[1]
+                    cardinfo = "1," + str(cardnumber) + "," + str(cdate) + "," + str(cno)
+                    self.mycursor.execute(f"Update users Set card = '{cardinfo}' where id = {self.id}") 
+                    self.mydb.commit()
+                    print("Virtual card cardCore is created!\n")
+                    self.oprHistory(2, 6, 0, 0, "", 0, 0, 0, 0)
+                    self.mydb.commit()
+                    time.sleep(2)
+                else:
+                    print("Password is incorrect, going back to main screen\n")
+                    time.sleep(1)
+                    self.interface(self.idn)
+
+            elif passgate[0] == "1":
+                print("You already have virtual coreCard\nCan NOT create anymore before it expires\n")
+                time.sleep(1)
+                self.interface(self.idn)
+
+        if (go == "1"):
+            if passgate[0] == "1":    
+                
+                print("Your personal coreCard")
+                print( f" ______________________________________\n|                                      |\n|  coreCard                            |")
+                print(f"|                                      |\n|                                      |\n|        3465  2613  {passgate[1]}        |")
+                print(f"|                                      |\n|                       {passgate[2]}     VISA |\n|______________________________________|")
+                time.sleep(1)
+
+                print( f" ______________________________________\n|                                      |\n|██████████████████████████████████████|")
+                print(f"|██████████████████████████████████████|\n|                                      |\n|   𓅃   ███████████{passgate[3]}                 |")
+                print(f"|                                      |\n|                                      |\n|______________________________________|\n\n")
+                time.sleep(2)
+
+            elif passgate[0] == "0":
+                print("You do NOT have personal coreCard to display\n")
+                time.sleep(1)
+                print("Would you like to create new virtual card | coreCard?\n1. Accept\n2. Refuse\n")
+                time.sleep(2)
+                bool = False
+                while bool == False:
+                    go = input("Go: ")
+                    if go == "1" or go == "2" or go == "0":
+                        print("")
+                        bool = True
+                    else: 
+                        print("Please type respective number to go\n")
+
+                if go == "1":
+                    self.cardMaker(0)
+                else:
+                    self.interface(self.idn)
+    
     def oprHistory(self, type1, type2, depo, withd, curType, tranMoney, toWhom, transMoney, curnType): 
         # i canceled create account notation for history since it causes harsh problems to solve, besides there is not that much need for it
         if type1 == 1:
@@ -1540,90 +1624,7 @@ class BankCore:
                 operation = "7," + str(timenow)
             
             self.mycursor.execute(f"Update actions Set act1 = '{operation}' where id = {idu}")
-
-
-    def cardMaker(self, a): # cdate as xx/xx | 2 spaces for cardnumber
-        idu = self.idn + 1
-        self.mycursor.execute(f"Select card from users where idusers = {idu}")
-        cardinfo = self.mycursor.fetchone()
-        cardinfo = str(cardinfo)
-        cardinf = cardinfo[2:] 
-        cardinfo = cardinf[:-3] 
-        passgate = cardinfo.split(",")
         
-        if a == 1:
-            bool = False
-            while bool == False:
-                go = input("Go: ")
-                if go == "1" or go == "2" or go == "9":
-                    print("")
-                    bool = True
-                else: 
-                    print("Please type respective number to go\n")
-        else:
-            go = "3"
-        
-        if (a == 0 or go == "2"):
-            if passgate[0] == "0": # check that if its passgate[0]   
-                psw = input("Please type your password to create cardCore: ")
-                print("")
-
-                if(psw == self.passw):
-                    cardnumber = str(random.randint(1000, 9999)) + "  " + str(random.randint(1000, 9999))
-                    cno = random.randint(100, 999)
-                    today = datetime.date.today()
-                    cdate = datetime.timedelta(days = 2520)
-                    cdate = str(today + cdate) 
-                    x = cdate.split("-")
-                    cdate = x[0][2:] + "/" + x[1]
-                    cardinfo = "1," + str(cardnumber) + "," + str(cdate) + "," + str(cno)
-                    self.mycursor.execute(f"Update users Set card = '{cardinfo}' where id = {self.id}") 
-                    self.mydb.commit()
-                    print("Virtual card cardCore is created!\n")
-                    self.oprHistory(2, 6, 0, 0, "", 0, 0, 0, "")
-                    time.sleep(2)
-                else:
-                    print("Password is incorrect, going back to main screen\n")
-                    time.sleep(1)
-                    self.interface(self.idn)
-
-            elif passgate[0] == "1":
-                print("You already have virtual coreCard\nCan NOT create anymore before it expires\n")
-                time.sleep(1)
-                self.interface(self.idn)
-
-        if (go == "1"):
-            if passgate[0] == "1":    
-                
-                print("Your personal coreCard")
-                print( f" ______________________________________\n|                                      |\n|  coreCard                            |")
-                print(f"|                                      |\n|                                      |\n|        3465  2613  {passgate[1]}        |")
-                print(f"|                                      |\n|                       {passgate[2]}     VISA |\n|______________________________________|")
-                time.sleep(1)
-
-                print( f" ______________________________________\n|                                      |\n|██████████████████████████████████████|")
-                print(f"|██████████████████████████████████████|\n|                                      |\n|   𓅃   ███████████{passgate[3]}                 |")
-                print(f"|                                      |\n|                                      |\n|______________________________________|\n\n")
-                time.sleep(2)
-
-            elif passgate[0] == "0":
-                print("You do NOT have personal coreCard to display\n")
-                time.sleep(1)
-                print("Would you like to create new virtual card | coreCard?\n1. Accept\n2. Refuse\n")
-                time.sleep(2)
-                bool = False
-                while bool == False:
-                    go = input("Go: ")
-                    if go == "1" or go == "2" or go == "0":
-                        print("")
-                        bool = True
-                    else: 
-                        print("Please type respective number to go\n")
-
-                if go == "1":
-                    self.cardMaker(0)
-                else:
-                    self.interface(self.idn)        
 
 
 #-----Execution-----#

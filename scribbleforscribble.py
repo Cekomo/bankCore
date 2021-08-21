@@ -6,12 +6,16 @@
 
 # i can add a commission fee for transfer operation such as 2.5 currency unit 
 
+# I do NOT know if multiple commits (second is generally not need) breaks the code, if something bad happens,
+# ..check that
 
+import random 
 import json
 import requests
 from math import floor
 import time
 import mysql.connector
+
 
 class BankCore:
     def __init__(self):
@@ -23,6 +27,8 @@ class BankCore:
 
         self.userlist = []        
         self.idn = 0
+        self.iban = ""
+        self.actions = ""
         
         # this variables are instantiate with the ratio of respective currencies when currencyExchange() is adressed
         self.tltousd = 0
@@ -98,7 +104,8 @@ class BankCore:
                 logbool = True
                        
                 self.name = data[1]; self.sname = data[2]; self.id = data[3]; self.passw = data[4]
-                self.isusd = data[9]; self.iseur = data[10]; self.isgold = data[11] 
+                self.isusd = data[9]; self.iseur = data[10]; self.isgold = data[11]
+                self.iban = str(data[12]); self.actions = data[13]
 
                 self.tl = float(data[5]) 
                 self.usd = float(data[6]) 
@@ -126,11 +133,13 @@ class BankCore:
         
         print("Your password must consist of:\n8 - 15 characters,\nAt least one upper letter,\nAt least one lower letter,\nAt least one digit,\nNo special characters.\n")   
         self.passwCorrection() 
+
+        self.createIBAN()
         
         print("Your account is created\n")
-        self.createUser(self.name, self.sname, self.id, self.passw) 
+        self.createUser(self.name, self.sname, self.id, self.passw, self.iban) 
 
-    def createUser(self, name, sname, id, passw):
+    def createUser(self, name, sname, id, passw, iban):
         
         self.mydb = mysql.connector.connect (
         database = "userinfo", # respective part for implementation
@@ -148,10 +157,11 @@ class BankCore:
         name = name.capitalize()
         sname = sname.capitalize()
 
-        values = (cid, name, sname, id, passw, "0", "0", "0", "0", "0", "0", "0")
-        sql = "INSERT INTO users(idusers, uname, sname, id, passw, tl, usd, eur, gold, isusd, iseur, isgold) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        values = (cid, name, sname, id, passw, "0", "0", "0", "0", "0", "0", "0", iban)
+        sql = "INSERT INTO users(idusers, uname, sname, id, passw, tl, usd, eur, gold, isusd, iseur, isgold, iban) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         self.mycursor.execute(sql, values)
-        
+        self.oprHistory(2, 6)
+
         try:
             self.mydb.commit()
         except mysql.connector.Error as err:
@@ -217,7 +227,7 @@ class BankCore:
         self.mycursor.execute("Select * From users")
         self.database = self.mycursor.fetchall()
         
-        print("1. Show registry operations\n2. Operate currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n9. Log out\n")
+        print("1. Show registry operations\n2. Operate currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n6. Operation History\n9. Log out\n")
         go = input("Go: ")
         print("")
 
@@ -238,6 +248,9 @@ class BankCore:
 
         elif(go == "5"):
             self.currencyExchange()
+
+        elif(go == "6"):
+            self.oprHistory(1, 0)
 
         elif(go == "9"):
             self.mydb.close()
@@ -292,6 +305,8 @@ class BankCore:
         elif(go == "3"):
             print("Please type your current password first to change with new")
             self.acceptPassw(1)
+            self.oprHistory(2, 7)
+            self.mydb.commit()
 
         elif(go == "4"):
             print("Please type your current password to delete your existing account")
@@ -305,7 +320,9 @@ class BankCore:
             self.interface(self.idn)
         elif psw == self.passw and a == 1:
             time.sleep(0.2)
+            print("Please type your new password\nIt must include: 8 - 15 characters, upper letter, lower letter, digit, no special character")
             self.passwCorrection()
+            print("Your password is changed!\n")
         elif psw == self.passw and a == 2:
             time.sleep(0.2)
             print("Do you want to delete your account? (Type any other key to return)")
@@ -734,6 +751,7 @@ class BankCore:
                     idu = self.idn + 1
                     sql = f"Update users Set isusd = {self.isusd} where idusers = {idu}"
                     self.mycursor.execute(sql)
+                    self.oprHistory(2, 3)
                     time.sleep(1)
                 else:
                     print("Password is incorrect, going back to main screen\n")
@@ -751,6 +769,7 @@ class BankCore:
                     sql = f"Update users Set iseur = {self.iseur} where idusers = {idu}"
                     self.mycursor.execute(sql)
                     print("Euro account is created!\n")
+                    self.oprHistory(2, 3)
                     time.sleep(1)
                 else:
                     print("Password is incorrect, going back to main screen\n")
@@ -768,6 +787,7 @@ class BankCore:
                     sql = f"Update users Set isgold = {self.isgold} where idusers = {idu}"
                     self.mycursor.execute(sql)       
                     print("Gold account is created!\n")
+                    self.oprHistory(2, 3)
                     time.sleep(1)
                 else:
                     print("Password is incorrect, going back to main screen\n")
@@ -917,6 +937,12 @@ class BankCore:
             self.passwCorrection()
 
 
+    def createIBAN(self): # IBAN: TR26 3437 8813 1000 xxxx xxxx xx
+        rand = random.randint(0000000000, 9999999999) # ?
+        rand = "%s" % (rand)
+        self.iban = "TR26343788131000" + rand # rest 10 number will be random for each user
+
+
     def turnBack(self, inputVar, method): 
         # in case user type "9", system return stated function which is generally previous one
         if(inputVar == "9"):
@@ -992,21 +1018,25 @@ class BankCore:
                 sql = f"Update users Set tl = {self.tl} where idusers = {idu}"
                 self.mycursor.execute(sql)
                 print(f"{m1} balance is updated as {'%.2f'%self.tl} {m2}\n")
+                self.oprHistory(2, 1)
                 time.sleep(1)
             elif(m1 == "USD"):
                 self.usd += floor(themoney)
                 sql = f"Update users Set usd = {self.usd} where idusers = {idu}"
                 self.mycursor.execute(sql)
                 print(f"{m1} balance is updated as {'%.2f'%self.usd} {m2}\n")
+                self.oprHistory(2, 1)
                 time.sleep(1)
             elif(m1 == "EUR"):
                 self.eur += floor(themoney)
                 sql = f"Update users Set eur = {self.eur} where idusers = {idu}"
                 self.mycursor.execute(sql)
                 print(f"{m1} balance is updated as {'%.2f'%self.eur} {m2}\n")
+                self.oprHistory(2, 1)
                 time.sleep(1)
 
-            time.sleep(0.2)    
+            time.sleep(0.2)
+
             try:
                 self.mydb.commit()
             except mysql.connector.Error as err:
@@ -1054,6 +1084,7 @@ class BankCore:
                     sql = f"Update users Set tl = {self.tl} where idusers = {idu}"
                     self.mycursor.execute(sql)
                     print(f"{m1} balance is updated as {'%.2f'%self.tl} {m2}\n")
+                    self.oprHistory(2, 2)
                     time.sleep(1)
                 elif(m1 == "USD" and (self.usd - themoney >= 0)):
                     self.usd -= floor(themoney)
@@ -1061,6 +1092,7 @@ class BankCore:
                     sql = f"Update users Set usd = {self.usd} where idusers = {idu}"
                     self.mycursor.execute(sql)
                     print(f"{m1} balance is updated as {'%.2f'%self.usd} {m2}\n")
+                    self.oprHistory(2, 2)
                     time.sleep(1)
                 elif(m1 == "EUR" and (self.eur - themoney >= 0)):
                     self.eur -= floor(themoney)
@@ -1068,12 +1100,15 @@ class BankCore:
                     sql = f"Update users Set eur = {self.eur} where idusers = {idu}"
                     self.mycursor.execute(sql)
                     print(f"{m1} balance is updated as {'%.2f'%self.eur} {m2}\n")
+                    self.oprHistory(2, 2)
                     time.sleep(1)
                 else:
                     themoney += floor(decrement) # this is not necessarry
                     print(f"You have insufficient currency to withdraw {'%.2f'%decrement} {m2}.\nNo currency is withdrawn.\n")
                 
                 time.sleep(0.2)
+                
+
                 try:
                     self.mydb.commit()
                 except mysql.connector.Error as err:
@@ -1110,6 +1145,7 @@ class BankCore:
         self.mycursor.execute(sql1)
         sql2 = f"Update users Set {mny3} = {mny4} where idusers = {idu}"
         self.mycursor.execute(sql2)
+        self.oprHistory(2, 5) # it will need specialization afterwards
 
 
     def transferInterface(self): 
@@ -1178,13 +1214,13 @@ class BankCore:
         time.sleep(0.2)
         bool = False; boool = False
         while(bool == False): # this while structure is little bit nonsense
-            toUser = input("Identity Number: ")
+            toUser = input("IBAN: ")
             print("")
             if(toUser == "0"):
                 print("Going back to the main screen")
                 time.sleep(0.2)
                 boool = True
-            if(toUser != self.id):
+            if(toUser != self.iban):
                 bool = True
             else:
                 print("You can NOT send currency to your account. Please try again\nPress \"0\" to return")
@@ -1192,7 +1228,7 @@ class BankCore:
 
         bool = False
         for data in self.database:
-            if(toUser == str(data[3])):
+            if(toUser == str(data[12])):
                 self.mycursor.execute(f"Select {ismoneyy} from users where id = {data[3]}")
                 checkBalance = self.mycursor.fetchone()
                 bool = True
@@ -1225,6 +1261,7 @@ class BankCore:
                             money -= floor(sendMoney)
                             sql1 = f"Update users Set {lmoney} = {money} where idusers = {idu}"
                             self.mycursor.execute(sql1)
+                            
                             self.mycursor.execute(f"Select {lmoney} from users where id = {data[3]}")
                             sentMoney = self.mycursor.fetchone()
                             print(f"{floor(sendMoney)} {moneyunit}(s) is sent successfully\n")
@@ -1233,8 +1270,10 @@ class BankCore:
                             senMoney = "%s" % (sentMoney) # I apply this structure first time in my life
                             sendMoney = floor(sendMoney) #!
                             sendMoney += float(senMoney)
+                            
                             sql2 = f"Update users Set {lmoney} = {sendMoney} where id = {data[3]}"
                             self.mycursor.execute(sql2)
+                            self.oprHistory(2, 4)
                         else:       
                             print("Your balance is not enough to transfer\n")
                             time.sleep(1)
@@ -1249,7 +1288,7 @@ class BankCore:
                     self.interface(self.idn)
 
         if(bool == False and toUser != "0"):
-            print("There is no such registered identity number\n")
+            print("There is no such registered IBAN\n")
             time.sleep(1)
             self.interface(self.idn)
         elif(boool == True):
@@ -1299,7 +1338,84 @@ class BankCore:
             self.interface(self.idn)
         print("")
 
+    def oprHistory(self, type1, type2): # moneytype, datetime, iban, moneytype1, moneytype2, moneyaccount
+        # this method will be used under each operation and get the values to display when user monitor operation history 
+        # firstly, i will try a structure that do not hold any value but just the actions by using "type" instantiation to mySQL
+        
+        self.actions # manipulate this
 
+        if type1 == 1:
+            self.mycursor.execute(f"Select actions from users where id = {self.id}")
+            operations = self.mycursor.fetchone()
+            self.actions = str(operations)
+
+            i = 1
+            print("Account's most recent operations are listed (from More Current to Less):")
+            for d in self.actions:
+                if d == "1":
+                    print(f"{i}-", end = " "); i += 1
+                    print(f"Lodgement")
+                elif d == "2":
+                    print(f"{i}-", end = " "); i += 1
+                    print(f"Withdrawal")
+                elif d == "3":
+                    print(f"{i}-", end = " "); i += 1
+                    print(f"Currency Account Creation")
+                elif d == "4":
+                    print(f"{i}-", end = " "); i += 1
+                    print(f"Currency Transfer")
+                elif d == "5":
+                    print(f"{i}-", end = " "); i += 1
+                    print(f"Currency Exchange")
+                elif d == "6":
+                    print(f"{i}-", end = " "); i += 1
+                    print(f"Welcome! - Your account is created. Thank you to prefer bankCore")
+                elif d == "7":
+                    print(f"{i}-", end = " "); i += 1
+                    print(f"Password Change - Password is changed")
+                
+                time.sleep(0.2)
+            time.sleep(2)
+            print("")
+        
+        elif type1 == 2:
+            self.mycursor.execute(f"Select actions from users where id = {self.id}")
+            operations = self.mycursor.fetchone()
+            self.actions = str(operations)
+
+            operation = ""
+            for n in operations:
+                if n.isdigit():
+                    operation += n
+
+            if type2 == 0:
+                pass
+            elif type2 == 1:
+                operation = "1" + operation
+            elif type2 == 2:
+                operation = "2" + operation 
+            elif type2 == 3:
+                operation = "3" + operation 
+            elif type2 == 4:
+                operation = "4" + operation 
+            elif type2 == 5:
+                operation = "5" + operation 
+            elif type2 == 6:
+                operation = "6" + operation 
+            elif type2 == 7:
+                operation = "7" + operation 
+
+            operation = str(operation)
+            if len(operation) > 10:
+                operation = operation[:-1]
+                
+            self.actions = str(operation)
+            self.mycursor.execute(f"Update users Set actions = {operation} where id = {self.id}")
+            # self.mydb.commit() 
+            # submitting commit method here will cause some problems with use of other methods
+            # if there is no commit for consecutive method, submit that command outside of function
+
+            
 #-----Execution-----#
 
 exe = BankCore()

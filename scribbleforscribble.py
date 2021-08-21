@@ -1,6 +1,11 @@
 # implement a structure that shows only existing accounts in that list (optional) interface --> go: 2  
 # i can limit minimum and maximum value for all money related methods
 
+# NEWS !
+# aboutBankcore session is added to menu()
+# some enhancements on exchangeCurrency method
+# exchangeCurrency method is operational for offline too now
+
 import json
 import requests
 import time
@@ -17,25 +22,20 @@ class BankCore:
 
         self.userlist = []        
         self.idn = 0
-
-        # variables to change exchange ratios dynamically for exchanceCurrency method 
-        # Source: "exchangeratesapi.io"
-        apiURL = requests.get("http://api.exchangeratesapi.io/v1/latest?access_key=698d889676879382f142cb906f52f58b&format=1")
-        apiURL = json.loads(apiURL.text) 
         
-        # gold ratios are depended to ONS, not gr.; so, they are multiplied with 31.1034807
-        self.tltousd = (1 / (apiURL["rates"]['TRY'])) * (apiURL["rates"]['USD'])
-        self.usdtotl = (apiURL["rates"]['TRY']) * (1 / (apiURL["rates"]['USD']))
-        self.tltoeur = 1 / (apiURL["rates"]['TRY'])
-        self.eurtotl = apiURL["rates"]['TRY']
-        self.tltogold = (apiURL["rates"]['XAU'] * 31.1034807) * (1 / (apiURL["rates"]['TRY']))
-        self.goldtotl = (1 / (apiURL["rates"]['XAU'] * 31.1034807)) * apiURL["rates"]['TRY']
-        self.usdtoeur = 1 / (apiURL["rates"]['USD'])
-        self.eurtousd = apiURL["rates"]['USD']
-        self.goldtousd = (apiURL["rates"]['USD']) * (1 / (apiURL["rates"]['XAU'] * 31.1034807))
-        self.usdtogold = (apiURL["rates"]['XAU'] * 31.1034807) * (1 / (apiURL["rates"]['USD']))
-        self.goldtoeur = 1 / (apiURL["rates"]['XAU'] * 31.1034807)
-        self.eurtogold = apiURL["rates"]['XAU'] * 31.1034807 
+        # this variables are instantiate with the ratio of respective currencies when currencyExchange() is adressed
+        self.tltousd = 0
+        self.usdtotl = 0
+        self.tltoeur = 0
+        self.eurtotl = 0
+        self.tltogold = 0
+        self.goldtotl = 0
+        self.usdtoeur = 0
+        self.eurtousd = 0
+        self.goldtousd = 0
+        self.usdtogold = 0
+        self.goldtoeur = 0
+        self.eurtogold = 0
 
         self.name =  ""
         self.sname = ""
@@ -47,10 +47,10 @@ class BankCore:
         self.isgold = False
         
 
-    print("Welcome to bankCore version Beta(1.9)!\nPlase type regarding number for the next operation.\n")
+    print("Welcome to bankCore version (2.0)!\nPlase type regarding number for the next operation.\n")
   
     def menu(self):
-        print("1. Log in\n2. Create a new account\n9. Exit\n")
+        print("1. Log in\n2. Create a new account\n3. About bankCore\n9. Exit\n")
         go = input("Go: ")
         print("")
         if(go == "1"):
@@ -60,6 +60,9 @@ class BankCore:
         elif(go == "2"):
             print("Please type related informations that is asked.\n")
             self.register()
+            self.menu()
+        elif(go == "3"):
+            self.aboutBankCore()
             self.menu()
         elif(go == "9"):
             print("Exiting the application.\n")
@@ -151,6 +154,45 @@ class BankCore:
         time.sleep(0.2)
         print("Name: {}\nSurname: {}\nIdentity number: {}\nPassword: {}\n".format(self.name, self.sname, self.id, self.passw))
         time.sleep(2)
+
+    def aboutBankCore(self):
+        print(f"1. Version\n2. Where to store user data\n3. About currency exchange ratios\n4. Future versions of bankCore\n5. Possible problems\n6. About developer\n9. Go back\n")
+        time.sleep(1)
+        bool = False
+        nums = ["1", "2", "3", "4", "5", "6", "9"]
+        while bool == False:
+            go = input("Go: ")
+            print("")
+            if go in nums:
+                bool = True
+            else:
+                print("Please only type a number that is shown")
+            
+        if(go == "1"):
+            print("You are using bankCore Version 2.0\n")
+            time.sleep(1)
+        elif(go == "2"):
+            print("All user related data are stored in local mySQL server\n")
+            time.sleep(1)
+        elif(go == "3"):
+            print("Currency exchange ratios are taken from \"exchangeratesapi.io\"\nRatios are updated by daily\n")
+            time.sleep(1)
+        elif(go == "4"):
+            print("In the future versions of bankCore:\n- User data storage mechanism will be on online server\n- bankCore will have its own user interface\n- User interface will be integrated to a website\n")
+            time.sleep(2)
+        elif(go == "5"):
+            print("There may be some problems related with external modules:\n- MySQL problem occurs if there is no connection with its server\n- In order to receive currency exchange ratios, system must have an internet connection")
+            print("- If currency exchange ratios are taken too much, taking those data externally will not be possible for a month\n\nPlease contact with developer if you realize any sort of bugs\n")
+            time.sleep(1)
+        elif(go == "6"):
+            print("Hello, I am Cemil Şahin and I code this program within 26 days (current version is 2.0)\nIf you have any issue, you can contact with the developer by using the e-mail below:")
+            print("\"derdinekeder_alayinagider_asaletinyeter_kasapceko@sagolare.com\"\n")
+            time.sleep(4)
+            print("Just kidding, use this: \"cemils18@gmail.com\"\n")
+            time.sleep(1)
+        elif(go == "9"):
+            pass
+
 
     def interface(self, idd):
         
@@ -245,16 +287,62 @@ class BankCore:
 
 
     def currencyExchange(self): 
+
+        try:    
+            # variables to change exchange ratios dynamically for exchanceCurrency method 
+            # Source: "exchangeratesapi.io"
+            apiURL = requests.get("http://api.exchangeratesapi.io/v1/latest?access_key=698d889676879382f142cb906f52f58b&format=1")
+            apiURL = json.loads(apiURL.text) 
+
+            print("Currency exchange ratio data are taken from \"exchangeratesapi.io\"\n")
+            time.sleep(1)
+            
+            # gold ratios are depended to ONS, not gr.; so, they are multiplied with 31.1034807
+            self.tltousd = (1 / (apiURL["rates"]['TRY'])) * (apiURL["rates"]['USD'])
+            self.usdtotl = (apiURL["rates"]['TRY']) * (1 / (apiURL["rates"]['USD']))
+            self.tltoeur = 1 / (apiURL["rates"]['TRY'])
+            self.eurtotl = apiURL["rates"]['TRY']
+            self.tltogold = (apiURL["rates"]['XAU'] * 31.1034807) * (1 / (apiURL["rates"]['TRY']))
+            self.goldtotl = (1 / (apiURL["rates"]['XAU'] * 31.1034807)) * apiURL["rates"]['TRY']
+            self.usdtoeur = 1 / (apiURL["rates"]['USD'])
+            self.eurtousd = apiURL["rates"]['USD']
+            self.goldtousd = (apiURL["rates"]['USD']) * (1 / (apiURL["rates"]['XAU'] * 31.1034807))
+            self.usdtogold = (apiURL["rates"]['XAU'] * 31.1034807) * (1 / (apiURL["rates"]['USD']))
+            self.goldtoeur = 1 / (apiURL["rates"]['XAU'] * 31.1034807)
+            self.eurtogold = apiURL["rates"]['XAU'] * 31.1034807 
+
+        except:
+            print("Connection lost with external server\nCurrency exchange ratios will be used locally\n")
+            time.sleep(1)
+
+            #-- THE VALUES MAY NOT BE UP-TO-DATE! --#
+            self.tltousd = 0.117
+            self.usdtotl = 8.524
+            self.tltoeur = 0.0994
+            self.eurtotl = 10.064
+            self.tltogold = 0.002016
+            self.goldtotl = 496.052
+            self.usdtoeur = 0.847
+            self.eurtousd = 1.1806
+            self.goldtousd = 58.2916
+            self.usdtogold = 0.017155
+            self.goldtoeur = 49.3588
+            self.eurtogold = 0.02026
+
         self.tl, self.usd, self.eur, self.gold 
 
         if(self.isusd or self.iseur or self.isgold): # this statement provides direct exit if no account is created
-            print("Please state the currency that you will give.")
+            print("Please state the currency that you will give.\nPress \"0\" to return")
             time.sleep(0.2)
             self.islira = False
             while(self.islira == False): 
-                xlira = input("try / usd / eur / gold: ")
+                xlira = input("TRY / USD / EUR / GOLD: ")
+                xlira = xlira.lower()
                 print("")
-                if((xlira == "try" and self.tl > 0) or (xlira == "usd" and self.isusd and self.usd > 0) or (xlira == "eur" and self.iseur and self.eur > 0) or (xlira == "gold" and self.isgold and self.gold > 0)):
+                if(xlira == "0" or xlira == "9"):
+                    self.interface(self.idn)
+                    self.islira = True
+                elif((xlira == "try" and self.tl > 0) or (xlira == "usd" and self.isusd and self.usd > 0) or (xlira == "eur" and self.iseur and self.eur > 0) or (xlira == "gold" and self.isgold and self.gold > 0)):
                     self.islira = True
                 elif((xlira == "usd" and self.isusd == False) or (xlira == "eur" and self.iseur == False) or (xlira == "gold" and self.isgold == False)):
                     print(f"Since there is no created {xlira.upper()} account, currency exchange operation is not possible\n")
@@ -268,13 +356,17 @@ class BankCore:
                     time.sleep(1)
                     print("Please pick one of the currency methods that are stated")
             
-            print("Please state the currency that you will get.")
+            print("Please state the currency that you will get.\nPress \"0\" to return")
             time.sleep(0.2)
             self.islira = False
             while(self.islira == False):
-                ylira = input("try / usd / eur / gold: ")
+                ylira = input("TRY / USD / EUR / GOLD: ")
+                ylira = ylira.lower()
                 print("")
-                if(ylira == "try" or (ylira == "usd" and self.isusd) or (ylira == "eur" and self.iseur) or (ylira == "gold" and self.isgold)):
+                if(ylira == "0" or ylira == "9"):
+                    self.interface(self.idn)
+                    self.islira = True
+                elif(ylira == "try" or (ylira == "usd" and self.isusd) or (ylira == "eur" and self.iseur) or (ylira == "gold" and self.isgold)):
                     self.islira = True
                 elif((ylira == "usd" and self.isusd == False) or (ylira == "eur" and self.iseur == False) or (ylira == "gold" and self.isgold == False)):
                     print(f"Since there is no created {ylira.upper()} account, currency exchange operation is not possible\n")
@@ -871,7 +963,7 @@ class BankCore:
         print(f"|    {assMny1}: {'%.2f'%assMoney1}    |    {assMny2}: {'%.2f'%assMoney2}    |")
         time.sleep(0.2) 
         print(f"Exchange ratio of", end = " ") 
-        print(f"{assMny1} to {assMny2}: {'%.5f'%excRatio}\n\nDatas are taken from \"exchangeratesapi.io\"\n")  
+        print(f"{assMny1} to {assMny2}: {'%.5f'%excRatio}\n")  
         time.sleep(2)
 
     def printAsset(self, assMoney1, assMny1, a):
@@ -905,7 +997,7 @@ class BankCore:
                 elif(go == "1" or go == "2" or go == "3"):
                     bool = True
                 else:
-                    print("Please only type respective number\Press \"0\" to return\n") 
+                    print("Please only type respective number\nPress \"0\" to return\n") 
                     time.sleep(0.2)
 
             if(go == "1" or go == "2" or go == "3"):

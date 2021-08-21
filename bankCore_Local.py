@@ -1534,6 +1534,7 @@ class BankCore:
                     self.mydb.commit()
                     print("Virtual card cardCore is created!\n")
                     self.oprHistory(2, 6, 0, 0, "", 0, 0, 0, "")
+                    self.mydb.commit()
                     time.sleep(2)
                 else:
                     print("Password is incorrect, going back to main screen\n")

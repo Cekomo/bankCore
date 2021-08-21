@@ -322,6 +322,11 @@ class BankCore:
             time.sleep(0.2)
             print("Please type your new password\nIt must include: 8 - 15 characters, upper letter, lower letter, digit, no special character")
             self.passwCorrection()
+            psw = str(self.passw)
+            self.mycursor.execute(f"Update users Set passw = '{psw}' where id = {self.id}") # when I do not use single quote, mysql thinks that the
+            # .. password itself is a column
+            self.mydb.commit()
+            
             print("Your password is changed!\n")
         elif psw == self.passw and a == 2:
             time.sleep(0.2)
@@ -800,7 +805,7 @@ class BankCore:
                 time.sleep(1)
                 self.createCurrency()
             
-            try:
+            try:   
                 self.mydb.commit()
             except mysql.connector.Error as err:
                 print("There is an error of ", err)

@@ -1,14 +1,11 @@
 # implement a structure that shows only existing accounts in that list (optional) interface --> go: 2  
+# i can limit minimum and maximum value for all money related methods
 
-# add new function for exchangeCurrency() so that, it can monitor the converted amount and ask permission 
-# ..from user whether it approves the value or not
-# add new function for transferCurrency() so that, it can monitor the amount that is about to be sent, and
-# ..monitor the amount after send process is completed
-# add current currency amount for payMoney() and withdrawMoney()
-
+import json
+import requests
 import time
 import mysql.connector
-from mysql.connector.errors import DatabaseError
+# from mysql.connector.errors import DatabaseError
 
 class BankCore:
     def __init__(self):
@@ -22,18 +19,23 @@ class BankCore:
         self.idn = 0
 
         # variables to change exchange ratios dynamically for exchanceCurrency method 
-        self.tltousd = 0.117
-        self.usdtotl = 8.524
-        self.tltoeur = 0.0994
-        self.eurtotl = 10.064
-        self.tltogold = 0.002016
-        self.goldtotl = 496.052
-        self.usdtoeur = 0.847
-        self.eurtousd = 1.1806
-        self.goldtousd = 58.2916
-        self.usdtogold = 0.017155
-        self.goldtoeur = 49.3588
-        self.eurtogold = 0.02026
+        # Source: "exchangeratesapi.io"
+        apiURL = requests.get("http://api.exchangeratesapi.io/v1/latest?access_key=698d889676879382f142cb906f52f58b&format=1")
+        apiURL = json.loads(apiURL.text) 
+        
+        # gold ratios are depended to ONS, not gr.; so, they are multiplied with 31.1034807
+        self.tltousd = (1 / (apiURL["rates"]['TRY'])) * (apiURL["rates"]['USD'])
+        self.usdtotl = (apiURL["rates"]['TRY']) * (1 / (apiURL["rates"]['USD']))
+        self.tltoeur = 1 / (apiURL["rates"]['TRY'])
+        self.eurtotl = apiURL["rates"]['TRY']
+        self.tltogold = (apiURL["rates"]['XAU'] * 31.1034807) * (1 / (apiURL["rates"]['TRY']))
+        self.goldtotl = (1 / (apiURL["rates"]['XAU'] * 31.1034807)) * apiURL["rates"]['TRY']
+        self.usdtoeur = 1 / (apiURL["rates"]['USD'])
+        self.eurtousd = apiURL["rates"]['USD']
+        self.goldtousd = (apiURL["rates"]['USD']) * (1 / (apiURL["rates"]['XAU'] * 31.1034807))
+        self.usdtogold = (apiURL["rates"]['XAU'] * 31.1034807) * (1 / (apiURL["rates"]['USD']))
+        self.goldtoeur = 1 / (apiURL["rates"]['XAU'] * 31.1034807)
+        self.eurtogold = apiURL["rates"]['XAU'] * 31.1034807 
 
         self.name =  ""
         self.sname = ""
@@ -44,10 +46,8 @@ class BankCore:
         self.iseur = False
         self.isgold = False
         
-        # self.users = {"name": "Cekomo", "surname": "\"Unknown\"", "id": "admin", "password": "admin"}
-        
 
-    print("Welcome to bankCore version Beta(1.4)!\nPlase type regarding number for the next operation.\n")
+    print("Welcome to bankCore version Beta(1.9)!\nPlase type regarding number for the next operation.\n")
   
     def menu(self):
         print("1. Log in\n2. Create a new account\n9. Exit\n")
@@ -63,7 +63,7 @@ class BankCore:
             self.menu()
         elif(go == "9"):
             print("Exiting the application.\n")
-            exit()
+            quit()
         else:  
             print("Invalid input.\nPlease try again.\n")
             self.menu()
@@ -294,54 +294,55 @@ class BankCore:
             
             if(xlira == "try" and ylira == "usd"): # printing asset and exchange ratios respecting currency input 
                 if(self.isusd == True):              
-                    self.printAsset(self.tl, "TRY", self.usd, "USD", self.tltousd)
+                    self.printAssets(self.tl, "TRY", self.usd, "USD", self.tltousd)
             elif(xlira == "try" and ylira == "eur"):
                 if(self.iseur == True):    
-                    self.printAsset(self.tl, "TRY", self.eur, "EUR", self.tltoeur)
+                    self.printAssets(self.tl, "TRY", self.eur, "EUR", self.tltoeur)
             elif(xlira == "try" and ylira == "gold"):
                 if(self.isgold == True):
-                    self.printAsset(self.tl, "TRY", self.gold, "Gold", self.tltogold)
+                    self.printAssets(self.tl, "TRY", self.gold, "Gold", self.tltogold)
             elif(xlira == "usd" and ylira == "try"):
                 if(self.isusd == True):
-                    self.printAsset(self.usd, "USD", self.tl, "TRY", self.usdtotl)
+                    self.printAssets(self.usd, "USD", self.tl, "TRY", self.usdtotl)
             elif(xlira == "usd" and ylira == "eur"):
                 if(self.isusd == True and self.iseur == True):
-                    self.printAsset(self.usd, "USD", self.eur, "EUR", self.usdtoeur)
+                    self.printAssets(self.usd, "USD", self.eur, "EUR", self.usdtoeur)
             elif(xlira == "usd" and ylira == "gold"):
                 if(self.isusd == True and self.isgold == True):
-                    self.printAsset(self.usd, "USD", self.gold, "Gold", self.usdtogold)
+                    self.printAssets(self.usd, "USD", self.gold, "Gold", self.usdtogold)
             elif(xlira == "eur" and ylira == "try"):
                 if(self.iseur == True):
-                    self.printAsset(self.eur, "EUR", self.tl, "TRY", self.eurtotl)
+                    self.printAssets(self.eur, "EUR", self.tl, "TRY", self.eurtotl)
             elif(xlira == "eur" and ylira == "usd"):
                 if(self.iseur == True and self.isusd == True):
-                    self.printAsset(self.eur, "EUR", self.usd, "USD", self.eurtousd)
+                    self.printAssets(self.eur, "EUR", self.usd, "USD", self.eurtousd)
             elif(xlira == "eur" and ylira == "gold"):
                 if(self.iseur == True and self.isgold == True): 
-                    self.printAsset(self.eur, "EUR", self.gold, "Gold", self.eurtogold)
+                    self.printAssets(self.eur, "EUR", self.gold, "Gold", self.eurtogold)
             elif(xlira == "gold" and ylira == "try"):
                 if(self.isgold == True):
-                    self.printAsset(self.gold, "Gold", self.tl, "TRY", self.goldtotl)
+                    self.printAssets(self.gold, "Gold", self.tl, "TRY", self.goldtotl)
             elif(xlira == "gold" and ylira == "usd"):
                 if(self.isgold == True and self.isusd == True):  
-                    self.printAsset(self.gold, "Gold", self.usd, "USD", self.goldtousd)      
+                    self.printAssets(self.gold, "Gold", self.usd, "USD", self.goldtousd)      
             elif(xlira == "gold" and ylira == "eur"):
                 if(self.isgold == True and self.iseur == True):
-                    self.printAsset(self.gold, "Gold", self.eur, "EUR", self.goldtoeur)
+                    self.printAssets(self.gold, "Gold", self.eur, "EUR", self.goldtoeur)
             
             self.islira = False
             while(self.islira == False): # money input and control mechanism
+                bool = True
                 try:    
-                    print("Type \"0\" to go back to main screen")
+                    print("Type \"0\" to go back to the main screen")
                     time.sleep(0.2)
                     money = float(input(f"{xlira.upper()} to {ylira.upper()} with the amount of: "))
                     if(isinstance(money, float) and money > 0):
                         self.islira = True
                     elif(money == 0):
-                        print("\nReturning main screen\n")
+                        print("\nReturning main screen")
                         time.sleep(0.2)
                         self.islira = True
-                        self.interface(self.idn)
+                        bool = False
                     else:
                         print("Negative amounts are NOT allowed to be exchanged, please try again (press \"0\" to leave)\n")
                         time.sleep(1)
@@ -351,7 +352,10 @@ class BankCore:
 
             print("")        
 
-            if(xlira == "try" and ylira == "usd"):
+            if(bool == False): # I instantiate bool and make statement for the problem below
+                # it connects from exchangeCurrency to permissionExchange even if the connection is closed, fix this
+                self.interface(self.idn)
+            elif(xlira == "try" and ylira == "usd"):
                 if(self.isusd == True and money <= self.tl):              
                     self.tl -= money
                     addmoney = money * self.tltousd
@@ -603,7 +607,7 @@ class BankCore:
         print("")
 
         self.turnBack(self.name, self.menu)
-        specialChar = ["!","'","^","+","%","&","/","(",")","=","?","_","-","*","|","\"","}","]","[","{","½","$","#","£",">","<",":",".","`",";",",","<","é","æ","ß","@","€","¨","~","´","\\"]
+        specialChar = ["!","'","^","+","%","&","/","(",")","=","?","_","-","*","|","\"","}","]","[","{","½","$","#","£",">","<",":",".","`",";",",","<","é","æ","ß","@","€","¨","~","´","\\", " ", "\t", "\b"]
         isuser = True
         
         if(len(self.name) > 13 or len(self.name) < 2):
@@ -629,7 +633,7 @@ class BankCore:
         print("")
 
         self.turnBack(self.sname, self.menu)
-        specialChar = ["!","'","^","+","%","&","/","(",")","=","?","_","-","*","|","\"","}","]","[","{","½","$","#","£",">","<",":",".","`",";",",","<","é","æ","ß","@","€","¨","~","´","\\"]
+        specialChar = ["!","'","^","+","%","&","/","(",")","=","?","_","-","*","|","\"","}","]","[","{","½","$","#","£",">","<",":",".","`",";",",","<","é","æ","ß","@","€","¨","~","´","\\", " ", "\t", "\b"]
         isuser = True
         if(len(self.sname) > 15 or len(self.sname) < 2):
             isuser = False
@@ -674,7 +678,7 @@ class BankCore:
         self.passw = input("Password: ")
         print("")
 
-        specialChar = ["!","'","^","+","%","&","/","(",")","=","?","_","-","*","|","\"","}","]","[","{","½","$","#","£",">","<",":",".","`",";",",","<","é","æ","ß","@","€","¨","~","´","\\"]
+        specialChar = ["!","'","^","+","%","&","/","(",")","=","?","_","-","*","|","\"","}","]","[","{","½","$","#","£",">","<",":",".","`",";",",","<","é","æ","ß","@","€","¨","~","´","\\", " ", "\t", "\b"]
 
         self.turnBack(self.passw, self.menu)
         isuser = True
@@ -747,7 +751,8 @@ class BankCore:
 
 
     def payMoney(self, themoney, m1, m2):
-        print("Please type the amount that you would like to deposit\nType \"0\" to go back")
+        print("Please type the amount that you would like to deposit\nType \"0\" to go back\n")
+        self.printAsset(themoney, m1, 1)
         themoney = 0
         increment = 0
         ismoney = False
@@ -804,7 +809,8 @@ class BankCore:
             print(f"There is no currency to withdraw in your {m1} account\n")
             self.interface(self.idn)
         else:   
-            print("Please type the amount that you would like to withdraw\nType \"0\" to go back")
+            print("Please type the amount that you would like to withdraw\nType \"0\" to go back\n")
+            self.printAsset(themoney, m1, 1)
             themoney = 0
             decrement = 0
             ismoney = False
@@ -860,13 +866,23 @@ class BankCore:
                 print("Returning back to the main screen")
 
 
-    def printAsset(self, assMoney1, assMny1, assMoney2, assMny2, excRatio):
+    def printAssets(self, assMoney1, assMny1, assMoney2, assMny2, excRatio):
         print(f"Your asset in {assMny1} and {assMny2} accounts:")
         print(f"|    {assMny1}: {'%.2f'%assMoney1}    |    {assMny2}: {'%.2f'%assMoney2}    |")
         time.sleep(0.2) 
         print(f"Exchange ratio of", end = " ") 
-        print(f"{assMny1} to {assMny2}: {'%.5f'%excRatio}\n")  
+        print(f"{assMny1} to {assMny2}: {'%.5f'%excRatio}\n\nDatas are taken from \"exchangeratesapi.io\"\n")  
         time.sleep(2)
+
+    def printAsset(self, assMoney1, assMny1, a):
+        if(a == 1):
+            print(f"Your asset in {assMny1} account:")
+            print(f"|    {assMny1}: {'%.2f'%assMoney1}    |\n")
+            time.sleep(1)
+        elif(a == 2):
+            print(f"Your asset in {assMny1} account decreased to:")
+            print(f"|    {assMny1}: {'%.2f'%assMoney1}    |\n")
+            time.sleep(1)
 
 
     def insertSQL(self, mny2, mny4, mny1, mny3):
@@ -963,6 +979,7 @@ class BankCore:
                 bool = True
                 ismoney = False
                 if(str(checkBalance) == "(1,)" or tlpass == True): # couldn't convert checkBalance boolean, found a way like this
+                    self.printAsset(money, moneytype, 1) 
                     while(ismoney == False):
                         try:
                             sendMoney = float(input(f"{moneytype}: "))
@@ -985,7 +1002,8 @@ class BankCore:
                             self.mycursor.execute(f"Select {lmoney} from users where id = {data[3]}")
                             sentMoney = self.mycursor.fetchone()
                             print(f"{sendMoney} {moneyunit}(s) is sent successfully\n")
-                            time.sleep(1)
+                            time.sleep(0.2)
+                            self.printAsset(money, moneytype, 2) 
                             senMoney = "%s" % (sentMoney) # I apply this structure first
                             sendMoney += float(senMoney) 
                             sql2 = f"Update users Set {lmoney} = {sendMoney} where id = {data[3]}"
@@ -1027,6 +1045,7 @@ class BankCore:
                 print("Please press respective number only\nPress \"2\" to return\n")
                 time.sleep(1)
                 bool = False
+       
         if(go == "1"):
             pass
         elif(go == "2"): 

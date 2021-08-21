@@ -1,16 +1,13 @@
 # implement a structure that shows only existing accounts in that list (optional) interface --> go: 2  
 # i can limit minimum and maximum value for all money related methods
 
-# NEWS !
-# aboutBankcore session is added to menu()
-# some enhancements on exchangeCurrency method
-# exchangeCurrency method is operational for offline too now
+# deleteUser method can be manipulated like this: change user's password so that the data is preserved
+# i believe interruption of id does not cause any problem 
 
 import json
 import requests
 import time
 import mysql.connector
-# from mysql.connector.errors import DatabaseError
 
 class BankCore:
     def __init__(self):
@@ -47,7 +44,7 @@ class BankCore:
         self.isgold = False
         
 
-    print("Welcome to bankCore version (2.0)!\nPlase type regarding number for the next operation.\n")
+    print("Welcome to bankCore version (2.1)!\nPlase type regarding number for the next operation.\n")
   
     def menu(self):
         print("1. Log in\n2. Create a new account\n3. About bankCore\n9. Exit\n")
@@ -84,7 +81,6 @@ class BankCore:
         self.mycursor.execute("Select * From users")
         self.database = self.mycursor.fetchall()
         
-        #print("Name: {}\nSurname: {}\nIdentity number: {}\nPassword: {}\n".format(self.users["name"], self.users["surname"], self.users["id"], self.users["password"])) # implementation of register saving
         id = input("Identity number: ") # unlike other programs, int is not bounded with approximately 2*10^10
         passw = input("Password: ")
         print("")
@@ -131,9 +127,17 @@ class BankCore:
         self.createUser(self.name, self.sname, self.id, self.passw) 
 
     def createUser(self, name, sname, id, passw):
-        # self.users 
-        # self.users = {"name": name.capitalize(), "surname": sname.capitalize(), "id": id, "password": passw}
         
+        self.mydb = mysql.connector.connect (
+        database = "userinfo", # respective part for implementation
+        host = "127.0.0.1",
+        user = "root",
+        password = "Bf27a96fae" )
+
+        self.mycursor = self.mydb.cursor()
+        self.mycursor.execute("Select * From users")
+        self.database = self.mycursor.fetchall()
+
         for data in self.database:
             cid = data[0] + 1
 
@@ -185,7 +189,7 @@ class BankCore:
             print("- If currency exchange ratios are taken too much, taking those data externally will not be possible for a month\n\nPlease contact with developer if you realize any sort of bugs\n")
             time.sleep(1)
         elif(go == "6"):
-            print("Hello, I am Cemil Şahin and I code this program within 26 days (current version is 2.0)\nIf you have any issue, you can contact with the developer by using the e-mail below:")
+            print("Hello, I am Cemil Şahin and I code this program within 27 days (current version is 2.0)\nIf you have any issue, you can contact with the developer by using the e-mail below:")
             print("\"derdinekeder_alayinagider_asaletinyeter_kasapceko@sagolare.com\"\n")
             time.sleep(4)
             print("Just kidding, use this: \"cemils18@gmail.com\"\n")
@@ -206,12 +210,13 @@ class BankCore:
         self.mycursor.execute("Select * From users")
         self.database = self.mycursor.fetchall()
         
-        print("1. Show registry informations\n2. Operate currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n9. Log out\n")
+        print("1. Show registry operations\n2. Operate currency accounts\n3. Create new currency account\n4. Transfer currency\n5. Exchange Currency\n9. Log out\n")
         go = input("Go: ")
         print("")
 
         if(go == "1"):
-            self.printUser()
+            self.registryOperations()
+            # self.printUser() # adjust this method for 1.
 
         elif(go == "2"):
             # implement a structure that shows only existing accounts in that list (optional)
@@ -237,6 +242,95 @@ class BankCore:
         
         self.interface(self.idn) # after deposit and withdrawing, it doesn't return interface so this is added. check it
 
+
+    def registryOperations(self):
+        print("1. Registry informations\n2. Balance informations\n3. Change password\n4. Delete personal account\n9. Go back\n")
+        bool = False 
+        time.sleep(0.2)
+        while(bool == False):
+            go = input("Go: ")
+            print("")
+            if(go == "9"):
+                self.interface(self.idn)
+            elif(go == "1" or go == "2" or go == "3" or go == "4"):
+                bool = True
+            else:
+                print("Please type any respective number to go\nType \"9\" to go back")
+                time.sleep(1)
+        
+        if(go == "1"): # hide the password and show just some parts of it
+            print(f"Dear {self.name} {self.sname}, you can see your registry informations below\n")
+            print(f"Identity number: {self.id}\nPassword: {self.passw}\n")
+            time.sleep(2)
+
+
+        elif(go == "2"):
+            print(f"Dear {self.name}, you can see your balance informations below\n\nTRY: {'%.2f'%self.tl}\n")
+            time.sleep(0.2)
+            if(self.isusd == True):
+                print(f"USD: {'%.2f'%self.usd}\n")
+            else:
+                print(f"USD: Nonactivated\n")
+            time.sleep(0.2)
+            if(self.iseur == True):
+                print(f"EUR: {'%.2f'%self.eur}\n")
+            else:
+                print(f"EUR: Nonactivated\n")
+            time.sleep(0.2)
+            if(self.isgold == True):
+                print(f"GOLD: {'%.2f'%self.gold} gram(s)\n")
+            else:
+                print(f"GOLD: Nonactivated\n")
+            time.sleep(2)
+        elif(go == "3"):
+            print("Please type your current password first to change with new")
+            self.acceptPassw(1)
+
+        elif(go == "4"):
+            print("Please type your current password to delete your existing account")
+            self.acceptPassw(2)
+
+    def acceptPassw(self, a):
+        psw = input("Password: ")
+        time.sleep(0.2)
+        print("")
+        if psw == "0":
+            self.interface(self.idn)
+        elif psw == self.passw and a == 1:
+            time.sleep(0.2)
+            self.passwCorrection()
+        elif psw == self.passw and a == 2:
+            time.sleep(0.2)
+            print("Do you want to delete your account? (Type any other key to return)")
+            time.sleep(1)
+            print("This action can NOT be undone!\n")
+            time.sleep(2)
+            go = input("Type \"I agree to delete my existing account\" to delete your account permenantly:\n--> ")
+            print("")
+            if go == "I agree to delete my existing account":
+                self.deleteAccount()
+                print("Your account is deleted successfully\n")
+                time.sleep(2)
+                self.menu()
+            else:
+                print("Typing of agreement statement is incorrect\n")
+                self.registryOperations()
+
+        else:
+            print("Your current password is incorrect\nType \"0\" to return main screen\n")
+            time.sleep(1)
+            self.registryOperations()
+
+    def deleteAccount(self): # not checked if its correct
+        idu = self.idn + 1
+        sql = f"Delete From users where idusers = {idu}"
+        self.mycursor.execute(sql)
+        try:
+            self.mydb.commit()
+        except mysql.connector.Error as err:
+            print("There is an error of ", err)
+        finally:
+            self.mydb.close()
 
     def account(self, mny, mnyU, mnyL, idd):
         mny
@@ -1088,6 +1182,13 @@ class BankCore:
                     
                     if(sendMoney != 0):
                         if(sendMoney <= money):
+                            if money == self.tl:
+                                self.tl -= sendMoney
+                            elif money == self.usd:
+                                self.usd -= sendMoney
+                            elif money == self.eur:
+                                self.eur -= sendMoney
+                            
                             money -= sendMoney
                             sql1 = f"Update users Set {lmoney} = {money} where idusers = {idu}"
                             self.mycursor.execute(sql1)
@@ -1096,7 +1197,7 @@ class BankCore:
                             print(f"{sendMoney} {moneyunit}(s) is sent successfully\n")
                             time.sleep(0.2)
                             self.printAsset(money, moneytype, 2) 
-                            senMoney = "%s" % (sentMoney) # I apply this structure first
+                            senMoney = "%s" % (sentMoney) # I apply this structure first time in my life
                             sendMoney += float(senMoney) 
                             sql2 = f"Update users Set {lmoney} = {sendMoney} where id = {data[3]}"
                             self.mycursor.execute(sql2)

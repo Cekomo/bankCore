@@ -4,8 +4,12 @@
 # deleteUser method can be manipulated like this: change user's password so that the data is preserved
 # i believe interruption of id does not cause any problem 
 
+# i can add a commission fee for transfer operation such as 2.5 currency unit 
+
+
 import json
 import requests
+from math import floor
 import time
 import mysql.connector
 
@@ -140,6 +144,9 @@ class BankCore:
 
         for data in self.database:
             cid = data[0] + 1
+
+        name = name.capitalize()
+        sname = sname.capitalize()
 
         values = (cid, name, sname, id, passw, "0", "0", "0", "0", "0", "0", "0")
         sql = "INSERT INTO users(idusers, uname, sname, id, passw, tl, usd, eur, gold, isusd, iseur, isgold) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -522,19 +529,26 @@ class BankCore:
                     print("Type \"0\" to go back to the main screen")
                     time.sleep(0.2)
                     money = float(input(f"{xlira.upper()} to {ylira.upper()} with the amount of: "))
-                    if(isinstance(money, float) and money > 0):
+                    if(isinstance(money, float) and money >= 0.01 and xlira == "gold"):
+                        pass
+                    elif(isinstance(money, float) and money >= 1):
                         self.islira = True
                     elif(money == 0):
                         print("\nReturning main screen")
                         time.sleep(0.2)
                         self.islira = True
                         bool = False
+                    elif(money < 1):
+                        print(f"You can only use integer to send {xlira.upper()}\n")
+                        time.sleep(1)
+                        
                     else:
                         print("Negative amounts are NOT allowed to be exchanged, please try again (press \"0\" to leave)\n")
                         time.sleep(1)
                 except:
                     print(f"Please type valid value to exchange {xlira.upper()} with {ylira.upper()}") 
-                    time.sleep(1)       
+                    time.sleep(1)   
+                    print("")    
 
             print("")        
 
@@ -542,6 +556,7 @@ class BankCore:
                 # it connects from exchangeCurrency to permissionExchange even if the connection is closed, fix this
                 self.interface(self.idn)
             elif(xlira == "try" and ylira == "usd"):
+                money = floor(money)
                 if(self.isusd == True and money <= self.tl):              
                     self.tl -= money
                     addmoney = money * self.tltousd
@@ -553,6 +568,7 @@ class BankCore:
                 else:
                     self.checkBool(True, "TRY", self.isusd, "USD", self.tl, money) 
             elif(xlira == "try" and ylira == "eur"):
+                money = floor(money)
                 if(self.iseur == True and money <= self.tl):                
                     self.tl -= money
                     addmoney = money * self.tltoeur
@@ -564,6 +580,7 @@ class BankCore:
                 else:
                     self.checkBool(True, "TRY", self.iseur, "Euro", self.tl, money)    
             elif(xlira == "try" and ylira == "gold"):
+                money = floor(money)
                 if(self.isgold == True and money <= self.tl):     
                     self.tl -= money
                     addmoney = money * self.tltogold
@@ -575,6 +592,7 @@ class BankCore:
                 else:
                     self.checkBool(True, "TRY", self.isgold, "Gold", self.tl, money)     
             elif(xlira == "usd" and ylira == "try"):
+                money = floor(money)
                 if(self.isusd == True and money <= self.usd):    
                     self.usd -= money
                     addmoney = money * self.usdtotl
@@ -586,6 +604,7 @@ class BankCore:
                 else:
                     self.checkBool(self.isusd, "USD", True, "TRY", self.usd, money)        
             elif(xlira == "usd" and ylira == "eur"):
+                money = floor(money)
                 if(self.isusd == True and self.iseur == True and money <= self.usd):
                     self.usd -= money
                     addmoney = money * self.usdtoeur
@@ -597,6 +616,7 @@ class BankCore:
                 else:
                     self.checkBool(self.isusd, "USD", self.iseur, "Euro", self.usd, money) 
             elif(xlira == "usd" and ylira == "gold"):
+                money = floor(money)
                 if(self.isusd == True and self.isgold == True and money <= self.usd):   
                     self.usd -= money
                     addmoney = money * self.usdtogold
@@ -608,6 +628,7 @@ class BankCore:
                 else:
                     self.checkBool(self.isusd, "USD", self.isgold, "Gold", self.usd, money)          
             elif(xlira == "eur" and ylira == "try"):
+                money = floor(money)
                 if(self.iseur == True and money <= self.eur):    
                     self.eur -= money
                     addmoney = money * self.eurtotl
@@ -619,6 +640,7 @@ class BankCore:
                 else:
                     self.checkBool(self.iseur, "Euro", True, "TRY", self.eur, money)   
             elif(xlira == "eur" and ylira == "usd"):
+                money = floor(money)
                 if(self.iseur == True and self.isusd == True and money <= self.eur):    
                     self.eur -= money
                     addmoney = money * self.eurtousd
@@ -630,6 +652,7 @@ class BankCore:
                 else:
                     self.checkBool(self.iseur, "Euro", self.isusd, "USD", self.eur, money) 
             elif(xlira == "eur" and ylira == "gold"):
+                money = floor(money)
                 if(self.iseur == True and self.isgold == True and money <= self.eur):    
                     self.eur -= money
                     addmoney = money * self.eurtogold
@@ -946,9 +969,14 @@ class BankCore:
             try:
                 increment = float(input(f"{m1}: "))
                 print("")
-                if(isinstance(increment, float) and increment >= 0):
-                    themoney += increment 
+                if(increment == 0):
+                    ismoney = True
+                elif(isinstance(increment, float) and increment >= 10):
+                    themoney += floor(increment) 
                     ismoney = True   
+                elif(increment > 0 and increment < 10):
+                    s = "(s)"
+                    print(f"The minimum lodgement amount is 10 {m2 + s}")
                 else:
                     print("Please type a positive value to operate")
             except:
@@ -959,20 +987,20 @@ class BankCore:
         idu = self.idn + 1
         if(increment != 0): 
             if(m1 == "TRY"):
-                self.tl += themoney
+                self.tl += floor(themoney)
                 idu = self.idn + 1
                 sql = f"Update users Set tl = {self.tl} where idusers = {idu}"
                 self.mycursor.execute(sql)
                 print(f"{m1} balance is updated as {'%.2f'%self.tl} {m2}\n")
                 time.sleep(1)
             elif(m1 == "USD"):
-                self.usd += themoney
+                self.usd += floor(themoney)
                 sql = f"Update users Set usd = {self.usd} where idusers = {idu}"
                 self.mycursor.execute(sql)
                 print(f"{m1} balance is updated as {'%.2f'%self.usd} {m2}\n")
                 time.sleep(1)
             elif(m1 == "EUR"):
-                self.eur += themoney
+                self.eur += floor(themoney)
                 sql = f"Update users Set eur = {self.eur} where idusers = {idu}"
                 self.mycursor.execute(sql)
                 print(f"{m1} balance is updated as {'%.2f'%self.eur} {m2}\n")
@@ -1004,9 +1032,14 @@ class BankCore:
                 try:
                     decrement = float(input(f"{m1}: "))
                     print("")
-                    if(isinstance(decrement, float) and decrement >= 0):
-                        themoney += decrement
+                    if(decrement == 0):
                         ismoney = True
+                    elif(isinstance(decrement, float) and decrement >= 10):
+                        themoney += floor(decrement)
+                        ismoney = True
+                    elif(decrement > 0 and decrement < 10):
+                        s = "(s)"
+                        print(f"The minimum withdrawal amount is 10 {m2 + s}")
                     else:           
                         print("Please type a positive value to operate")
                 except:
@@ -1016,28 +1049,28 @@ class BankCore:
             time.sleep(0.2)
             if(decrement != 0):
                 if(m1 == "TRY" and (self.tl - themoney >= 0)):
-                    self.tl -= themoney
+                    self.tl -= floor(themoney)
                     idu = self.idn + 1
                     sql = f"Update users Set tl = {self.tl} where idusers = {idu}"
                     self.mycursor.execute(sql)
                     print(f"{m1} balance is updated as {'%.2f'%self.tl} {m2}\n")
                     time.sleep(1)
                 elif(m1 == "USD" and (self.usd - themoney >= 0)):
-                    self.usd -= themoney
+                    self.usd -= floor(themoney)
                     idu = self.idn + 1
                     sql = f"Update users Set usd = {self.usd} where idusers = {idu}"
                     self.mycursor.execute(sql)
                     print(f"{m1} balance is updated as {'%.2f'%self.usd} {m2}\n")
                     time.sleep(1)
                 elif(m1 == "EUR" and (self.eur - themoney >= 0)):
-                    self.eur -= themoney
+                    self.eur -= floor(themoney)
                     idu = self.idn + 1
                     sql = f"Update users Set eur = {self.eur} where idusers = {idu}"
                     self.mycursor.execute(sql)
                     print(f"{m1} balance is updated as {'%.2f'%self.eur} {m2}\n")
                     time.sleep(1)
                 else:
-                    themoney += decrement # this is not necessarry
+                    themoney += floor(decrement) # this is not necessarry
                     print(f"You have insufficient currency to withdraw {'%.2f'%decrement} {m2}.\nNo currency is withdrawn.\n")
                 
                 time.sleep(0.2)
@@ -1183,22 +1216,23 @@ class BankCore:
                     if(sendMoney != 0):
                         if(sendMoney <= money):
                             if money == self.tl:
-                                self.tl -= sendMoney
+                                self.tl -= floor(sendMoney)
                             elif money == self.usd:
-                                self.usd -= sendMoney
+                                self.usd -= floor(sendMoney)
                             elif money == self.eur:
-                                self.eur -= sendMoney
+                                self.eur -= floor(sendMoney)
                             
-                            money -= sendMoney
+                            money -= floor(sendMoney)
                             sql1 = f"Update users Set {lmoney} = {money} where idusers = {idu}"
                             self.mycursor.execute(sql1)
                             self.mycursor.execute(f"Select {lmoney} from users where id = {data[3]}")
                             sentMoney = self.mycursor.fetchone()
-                            print(f"{sendMoney} {moneyunit}(s) is sent successfully\n")
+                            print(f"{floor(sendMoney)} {moneyunit}(s) is sent successfully\n")
                             time.sleep(0.2)
                             self.printAsset(money, moneytype, 2) 
                             senMoney = "%s" % (sentMoney) # I apply this structure first time in my life
-                            sendMoney += float(senMoney) 
+                            sendMoney = floor(sendMoney) #!
+                            sendMoney += float(senMoney)
                             sql2 = f"Update users Set {lmoney} = {sendMoney} where id = {data[3]}"
                             self.mycursor.execute(sql2)
                         else:       

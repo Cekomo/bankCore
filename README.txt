@@ -1,3 +1,7 @@
+- After 30 commits I started to work on different computer. Therefore, each commit can be as
+same as the total line in code. However, the commit messages show the addition for respective
+code.
+
 - It seems it is not possible to impelement a structure that writes user's datas into
 ".txt" file and read/manipulate it. I stuck on reading data from ".txt" file So I jump 
 the next step which is MySQL database.

@@ -6,16 +6,6 @@
 # ..monitor the amount after send process is completed
 # add current currency amount for payMoney() and withdrawMoney()
 
-"""
-Report of mySQL behaviour:
-    Each variable can get one value for each run. If any of variables assigned as twice or more,
-    first value is erased and second one is assigned as real value. Briefly, if any of variables assigned once,
-    other assignments overwrites to the same value. As an example in a single run, No: A balance has 100 tl. It 
-    sends No: B balance 100 tl and it is set zero. However, No: A balance can send up to 100 tl to No: C balance 
-    and No: B balance remains the same. Try to fix this issue. If each assingment is used at most once, there is 
-    no problem. This circumstances is valid for all the variables that contains changeable values.
-"""
-
 import time
 import mysql.connector
 from mysql.connector.errors import DatabaseError
@@ -366,8 +356,9 @@ class BankCore:
                     self.tl -= money
                     addmoney = money * self.tltousd
                     self.usd += addmoney
+                    self.exchangePermission(addmoney, "dollar(s)", "USD", money, "lira(s)")
                     self.insertSQL(self.tl, self.usd, "tl", "usd")
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.upper()}: {'%.2f'%self.usd}\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.upper()}: {'%.2f'%self.usd} |\n")
                     time.sleep(2)  
                 else:
                     self.checkBool(True, "TRY", self.isusd, "USD", self.tl, money) 
@@ -376,8 +367,9 @@ class BankCore:
                     self.tl -= money
                     addmoney = money * self.tltoeur
                     self.eur += addmoney
+                    self.exchangePermission(addmoney, "euro(s)", "EUR", money, "lira(s)")
                     self.insertSQL(self.tl, self.eur, "tl", "eur")
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.upper()}: {'%.2f'%self.eur}\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.upper()}: {'%.2f'%self.eur} |\n")
                     time.sleep(2)  
                 else:
                     self.checkBool(True, "TRY", self.iseur, "Euro", self.tl, money)    
@@ -386,8 +378,9 @@ class BankCore:
                     self.tl -= money
                     addmoney = money * self.tltogold
                     self.gold += addmoney
+                    self.exchangePermission(addmoney, "gram(s)", "Gold", money, "lira(s)")
                     self.insertSQL(self.tl, self.gold, "tl", "gold")
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.tl} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s) |\n")
                     time.sleep(2)  
                 else:
                     self.checkBool(True, "TRY", self.isgold, "Gold", self.tl, money)     
@@ -396,8 +389,9 @@ class BankCore:
                     self.usd -= money
                     addmoney = money * self.usdtotl
                     self.tl += addmoney
+                    self.exchangePermission(addmoney, "lira(s)", "TRY", money, "dollar(s)")
                     self.insertSQL(self.usd, self.tl, "usd", "tl")
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.upper()}: {'%.2f'%self.tl}\n") 
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.upper()}: {'%.2f'%self.tl} |\n") 
                     time.sleep(2)  
                 else:
                     self.checkBool(self.isusd, "USD", True, "TRY", self.usd, money)        
@@ -406,8 +400,9 @@ class BankCore:
                     self.usd -= money
                     addmoney = money * self.usdtoeur
                     self.eur += addmoney  
+                    self.exchangePermission(addmoney, "euro(s)", "EUR", money, "dollar(s)")
                     self.insertSQL(self.usd, self.eur, "usd", "eur")
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.upper()}: {'%.2f'%self.eur}\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.upper()}: {'%.2f'%self.eur} |\n")
                     time.sleep(2)  
                 else:
                     self.checkBool(self.isusd, "USD", self.iseur, "Euro", self.usd, money) 
@@ -416,8 +411,9 @@ class BankCore:
                     self.usd -= money
                     addmoney = money * self.usdtogold
                     self.gold += addmoney  
+                    self.exchangePermission(addmoney, "gram(s)", "Gold", money, "dollar(s)")
                     self.insertSQL(self.usd, self.gold, "usd", "gold")
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n") 
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.usd} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s) |\n") 
                     time.sleep(2)  
                 else:
                     self.checkBool(self.isusd, "USD", self.isgold, "Gold", self.usd, money)          
@@ -426,8 +422,9 @@ class BankCore:
                     self.eur -= money
                     addmoney = money * self.eurtotl
                     self.tl += addmoney     
+                    self.exchangePermission(addmoney, "lira(s)", "TRY", money, "euro(s)")
                     self.insertSQL(self.eur, self.tl, "eur", "tl")
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.upper()}: {'%.2f'%self.tl}\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.upper()}: {'%.2f'%self.tl} |\n")
                     time.sleep(2)  
                 else:
                     self.checkBool(self.iseur, "Euro", True, "TRY", self.eur, money)   
@@ -436,8 +433,9 @@ class BankCore:
                     self.eur -= money
                     addmoney = money * self.eurtousd
                     self.usd += addmoney
+                    self.exchangePermission(addmoney, "dollar(s)", "USD", money, "euro(s)")
                     self.insertSQL(self.eur, self.usd, "eur", "usd")
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.upper()}: {'%.2f'%self.usd}\n")
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.upper()}: {'%.2f'%self.usd} |\n")
                     time.sleep(2)  
                 else:
                     self.checkBool(self.iseur, "Euro", self.isusd, "USD", self.eur, money) 
@@ -446,8 +444,9 @@ class BankCore:
                     self.eur -= money
                     addmoney = money * self.eurtogold
                     self.gold += addmoney  
+                    self.exchangePermission(addmoney, "gram(s)", "Gold", money, "euro(s)")
                     self.insertSQL(self.eur, self.gold, "eur", "gold")
-                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s)\n") 
+                    print(f"Current balance is updated as | {xlira.upper()}: {'%.2f'%self.eur} | {ylira.capitalize()}: {'%.2f'%self.gold} gram(s) |\n") 
                     time.sleep(2)   
                 else:
                     self.checkBool(self.iseur, "Euro", self.isgold, "Gold", self.eur, money)    
@@ -456,8 +455,9 @@ class BankCore:
                     self.gold -= money
                     addmoney = money * self.goldtotl
                     self.tl += addmoney  
+                    self.exchangePermission(addmoney, "lira(s)", "TRY", money, "gram(s)")
                     self.insertSQL(self.gold, self.tl, "gold", "tl")
-                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.tl}\n")
+                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.tl} |\n")
                     time.sleep(2)  
                 else:
                     self.checkBool(self.isgold, "Gold", True, "TRY", self.gold, money)
@@ -466,8 +466,9 @@ class BankCore:
                     self.gold -= money
                     addmoney = money * self.goldtousd
                     self.usd += addmoney  
+                    self.exchangePermission(addmoney, "dollar(s)", "USD", money, "gram(s)")
                     self.insertSQL(self.gold, self.usd, "gold", "usd")
-                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.usd}\n")
+                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.usd} |\n")
                     time.sleep(2)  
                 else:
                     self.checkBool(self.isgold, "Gold", self.isusd, "USD", self.gold, money)        
@@ -476,8 +477,9 @@ class BankCore:
                     self.gold -= money
                     addmoney = money * self.goldtoeur
                     self.eur += addmoney 
+                    self.exchangePermission(addmoney, "euro(s)", "EUR", money, "gram(s)")
                     self.insertSQL(self.gold, self.eur, "gold", "eur") 
-                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.eur}\n")
+                    print(f"Current balance is updated as | {xlira.capitalize()}: {'%.2f'%self.gold} gram(s) | {ylira.upper()}: {'%.2f'%self.eur} |\n")
                     time.sleep(2)  
                 else:
                     self.checkBool(self.isgold, "Gold", self.iseur, "Euro", self.gold, money)  
@@ -1010,6 +1012,47 @@ class BankCore:
         elif(str(checkBalance) != "(1,)" and tlpass == False):
             print(f"Respective user does NOT have {moneytype} account to accept currency\n")
             time.sleep(1)
+
+
+    def exchangePermission(self, money1, moneytype1, accountName, money2, moneytype2): 
+        print(f"You will receive {'%.2f'%money1} {moneytype1} to your {accountName} account by spending {'%.2f'%money2} {moneytype2}\n")
+        time.sleep(2)
+        bool = False
+        while(bool == False):
+            print("1. Accept\n2. Refuse")
+            go = input("Go: ")
+            if(go == "1" or go == "2"):
+                bool = True
+            else:
+                print("Please press respective number only\nPress \"2\" to return\n")
+                time.sleep(1)
+                bool = False
+        if(go == "1"):
+            pass
+        elif(go == "2"): 
+            if(moneytype1 == "lira(s)"):
+                self.tl -= money1
+            if(moneytype1 == "dollar(s)"):
+                self.usd -= money1
+            if(moneytype1 == "euro(s)"):
+                self.eur -= money1
+            if(moneytype1 == "gram(s)"):
+                self.gold -= money1
+            if(moneytype2 == "lira(s)"):
+                self.tl += money2
+            if(moneytype2 == "dollar(s)"):
+                self.usd += money2
+            if(moneytype2 == "euro(s)"):
+                self.eur += money2
+            if(moneytype2 == "gram(s)"):
+                self.gold += money2
+            
+            print("")
+            print("Operation denied. Going back to main screen\n")
+            time.sleep(1)
+            self.interface(self.idn)
+        print("")
+
 
 #-----Execution-----#
 

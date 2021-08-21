@@ -1,3 +1,6 @@
+- For bankCore_Online the program disconnects from database if no action is made for some time. Try to fix 
+this problem since it make the program close by giving error.
+
 - For bankCore_Online.py, it is enough for server to be open to implement any operation. However, for
 bankCore_Local.py, user should have mySQL database to implement any operation in application.
 

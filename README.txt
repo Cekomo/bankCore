@@ -1,7 +1,4 @@
-- With 10th commit, I split all currency methods even if they can be written in
-one method with parameters. I did that since the input that user type doesn't 
-return corresponding currency  value. It is better to apply currency method within
-one method. Try to merge them later.
+27 days later the code is completed its alpha and beta version, this is the first main release of bankCore!
 
 - Report of mySQL behaviour:
     Each variable can get one value for each run. If any of variables assigned as twice or more,

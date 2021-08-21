@@ -10,7 +10,7 @@ one method. Try to merge them later.
     sends No: B balance 100 tl and it is set zero. However, No: A balance can send up to 100 tl to No: C balance 
     and No: B balance remains the same. Try to fix this issue. If each assingment is used at most once, there is 
     no problem. This circumstances is valid for all the variables that contains changeable values.
-
+-- THE PROBLEM IS SOLVED -- 
 
 - After 30 commits I started to work on different computer. Therefore, each commit can be as
 same as the total line in code. However, the commit messages show the addition for respective

@@ -1,3 +1,6 @@
+- For bankCore_Online.py, it is enough for server to be open to implement any operation. However, for
+bankCore_Local.py, user should have mySQL database to implement any operation in application.
+
 27 days later the code is completed its alpha and beta version, this is the first main release of bankCore!
 
 - Report of mySQL behaviour:

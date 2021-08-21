@@ -808,11 +808,18 @@ class BankCore:
         self.mycursor.execute(sql2)
 
 
-    def transferInterface(self): # try to minimize this method
-        # checkBalance variable is not working properly, i cant send currency for usd and eur
+    def transferInterface(self): 
         if((self.tl > 0) or (self.isusd == True and self.usd > 0) or (self.iseur == True and self.eur > 0)):   
-            go = input("Go: ")
-            print("")  
+            bool = False
+            while(bool == False):
+                go = input("Go: ")
+                print("")
+                if(go == "0"):
+                    self.interface(self.idn)
+                elif(go == "1" or go == "2" or go == "3"):
+                    bool = True
+                else:
+                    print("Please only type respective number\Press \"0\" to return\n") 
 
             if(go == "1" or go == "2" or go == "3"):
                 if(go == "1"):
@@ -855,8 +862,18 @@ class BankCore:
 
     def transferCurrency(self, moneytype, moneyunit, money, lmoney, ismoneyy, tlpass):
         idu = self.idn + 1
-        print(f"Please type identity number of the user to send {moneytype}")
-        toUser = input("Identity Number: ")
+        print(f"Please type identity number of the user to send {moneytype}\nPress \"0\" to return\n")
+        bool = False; boool = False
+        while(bool == False): # this while structure is little bit nonsense
+            toUser = input("Identity Number: ")
+            print("")
+            if(toUser == "0"):
+                print("Going back to the main screen")
+                boool = True
+            if(toUser != self.id):
+                bool = True
+            else:
+                print("You can NOT send currency to your account. Please try again\nPress \"0\" to return")
         print("")
 
         bool = False
@@ -900,8 +917,10 @@ class BankCore:
                 else:
                     print(f"Respective user do NOT have {moneytype} account to accept any balance\n")
                     self.interface(self.idn)
-        if(bool == False):
+        if(bool == False and toUser != "0"):
             print("There is no such registered identity number\n")
+            self.interface(self.idn)
+        elif(boool == True):
             self.interface(self.idn)
         elif(str(checkBalance) != "(1,)" and tlpass == False):
             print(f"Respective user does NOT have {moneytype} account to accept currency\n")

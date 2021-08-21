@@ -1,8 +1,15 @@
 # I can code a method that ask for permission to the user after any operation about implementation 
 # implement a structure that shows only existing accounts in that list (optional) interface --> go: 2   
-# AS A MAIN PROBLEM THAT MUST BE SOLVED IMMIDIATELY, system does not save the values within same run, user should terminate..
-#.. to make variables saved in SQL, even the users. All the operations can be done once, otherwise the code overwrites it.
-# minimize transferInterface method after handling above problem
+
+"""
+Report of mySQL behaviour:
+    Each variable can get one value for each run. If any of variables assigned as twice or more,
+    first value is erased and second one is assigned as real value. Briefly, if any of variables assigned once,
+    other assignments overwrites to the same value. As an example in a single run, No: A balance has 100 tl. It 
+    sends No: B balance 100 tl and it is set zero. However, No: A balance can send up to 100 tl to No: C balance 
+    and No: B balance remains the same. Try to fix this issue. If each assingment is used at most once, there is 
+    no problem. This circumstances is valid for all the variables that contains changeable values.
+"""
 
 import mysql.connector
 from mysql.connector.errors import DatabaseError
@@ -55,7 +62,7 @@ class BankCore:
         self.users = {"name": "Cekomo", "surname": "\"Unknown\"", "id": "admin", "password": "admin"}
         
 
-    print("Welcome to bankCore version Alpha(0.4)!\nPlase type regarding number for the next operation.\n")
+    print("Welcome to bankCore version Beta(1.4)!\nPlase type regarding number for the next operation.\n")
   
     def menu(self):
         print("1. Log in\n2. Create a new account\n9. Exit\n")
@@ -184,6 +191,7 @@ class BankCore:
         
         self.interface(self.idn) # after deposit and withdrawing, it doesn't return interface so this is added. check it
 
+
     def account(self, mny, mnyU, mnyL, idd):
         mny
         print(f"1. Display currency amount\n2. Deposit {mnyU}\n3. Withdraw {mnyU}\n9. Return main screen\n")
@@ -224,6 +232,7 @@ class BankCore:
         else:
             print("Please type any respective number to operate\n")
             self.goldAccount()
+
 
     def currencyExchange(self): 
         self.tl, self.usd, self.eur, self.gold 
@@ -440,7 +449,7 @@ class BankCore:
 
         else:
             print("You do NOT have any created account to exchange currency\n")
-    # ----------------- exchangeCurrency method ends here ------------------- #
+
 
     def createCurrency(self):  
         self.isusd, self.iseur, self.isgold 
@@ -508,7 +517,8 @@ class BankCore:
         
         else:
             print("You have already all the accounts\nNo account available to create\n")
-        
+
+
     def checkBool(self, bool1, m1, bool2, m2, unit, mny): 
         bool3 = False
         if(unit <= mny):
@@ -521,7 +531,8 @@ class BankCore:
             bool3 = False
         if(bool3 == True):
             print(f"You do NOT have sufficient {m1} to exchange it with {m2}\n") 
-        
+
+
     def nameCorrection(self):
         self.name = input("Name: ")
         print("")
@@ -611,12 +622,14 @@ class BankCore:
         else:
             self.passwCorrection()
 
+
     def turnBack(self, inputVar, method): 
         # in case user type "9", system return stated function which is generally previous one
         if(inputVar == "9"):
             method()
         else:
             pass
+
 
     def currencyAccount(self, isusd, iseur, isgold):
         print("1. TRY account\n2. USD Account\n3. EUR Account\n4. Gold Account\n9. Return main screen\n")
@@ -647,6 +660,7 @@ class BankCore:
             self.interface(self.idn)
         else:
             self.currencyAccount(isusd, iseur, isgold)
+
 
     def payMoney(self, themoney, m1, m2):
         print("Please type the amount that you would like to deposit\nType \"0\" to go back")
@@ -694,8 +708,7 @@ class BankCore:
 
         else:
             print("Returning back to the main screen\n")
-
-        
+      
 
     def withdrawMoney(self, themoney, m1, m2):
         if(themoney == 0):
@@ -751,12 +764,14 @@ class BankCore:
 
             else:
                 print("Returning back to the main screen")
-        
+
+
     def printAsset(self, assMoney1, assMny1, assMoney2, assMny2, excRatio):
         print(f"Your asset in {assMny1} and {assMny2} accounts:")
         print(f"|    {assMny1}: {'%.2f'%assMoney1}    |    {assMny2}: {'%.2f'%assMoney2}    |") 
         print(f"Exchange ratio of", end = " ") 
         print(f"{assMny1} to {assMny2}: {'%.5f'%excRatio}\n")  
+
 
     def insertSQL(self, mny2, mny4, mny1, mny3):
         idu = self.idn + 1
@@ -764,6 +779,7 @@ class BankCore:
         self.mycursor.execute(sql1)
         sql2 = f"Update users Set {mny3} = {mny4} where idusers = {idu}"
         self.mycursor.execute(sql2)
+
 
     def transferInterface(self): # try to minimize this method
         # checkBalance variable is not working properly, i cant send currency for usd and eur
@@ -773,154 +789,13 @@ class BankCore:
 
             if(go == "1" or go == "2" or go == "3"):
                 if(go == "1" and self.tl > 0):
-                    idu = self.idn + 1
-                    print("Please type type identity number of the user to send TRY")
-                    toUser = input("Identity Number: ")
-                    print("")
-                    
-                    bool = False
-                    for data in self.database:
-                        if(toUser == str(data[3])):
-                            bool = True
-                            ismoney = False
-                            while(ismoney == False):
-                                try:
-                                    sendMoney = float(input("TRY: "))
-                                    print("")
-                                    if(isinstance(sendMoney, float) and sendMoney >= 0):
-                                        ismoney = True
-                                    else:           
-                                        print("Please type a positive value to operate")
-                                except:
-                                    print("")
-                                    print("Please type numerical values only")
-                            if(sendMoney != 0):
-                                if(sendMoney <= self.tl):
-                                    self.tl -= sendMoney
-                                    sql1 = f"Update users Set tl = {self.tl} where idusers = {idu}"
-                                    self.mycursor.execute(sql1)
-                                    self.mycursor.execute(f"Select tl from users where id = {data[3]}")
-                                    sentMoney = self.mycursor.fetchone()
-                                    print(f"{sendMoney} lira(s) is sent successfully\n")
-                                    senMoney = "%s" % (sentMoney)
-                                    sendMoney += float(senMoney) 
-                                    sql2 = f"Update users Set tl = {sendMoney} where id = {data[3]}"
-                                    self.mycursor.execute(sql2)
-                                else:
-                                    print("Your balance is not enough to transfer\n")
-                                    self.interface(self.idn)
-                            else:
-                                print("Going back to the main screen\n")
-                                self.interface(self.idn)
-                                
-                    if(bool == False):
-                        print("There is no such registered identity number\n")
-                        self.interface(self.idn)
+                    self.transferCurrency("TRY", "lira", self.tl, "tl", "tl", True) # method must be handled for this section
 
                 elif(go == "2" and self.usd > 0 and self.isusd == True):
-                    idu = self.idn + 1
-                    print("Please type type identity number of the user to send USD")
-                    toUser = input("Identity Number: ")
-                    print("")
-
-                    bool = False
-                    for data in self.database:
-                        if(toUser == str(data[3])):
-                            self.mycursor.execute(f"Select isusd from users where id = {data[3]}")
-                            checkBalance = self.mycursor.fetchone()
-                            bool = True
-                            ismoney = False
-                            if(str(checkBalance) == "(1,)"): # couldn't convert checkBalance boolean, found a way like this
-                                while(ismoney == False):
-                                    try:
-                                        sendMoney = float(input("USD: "))
-                                        print("")
-                                        if(isinstance(sendMoney, float) and sendMoney >= 0):
-                                            ismoney = True
-                                        else:           
-                                            print("Please type a positive value to operate")
-                                    except:
-                                        print("")
-                                        print("Please type numerical values only")
-                                
-                                if(sendMoney != 0):
-                                    if(sendMoney <= self.usd):
-                                        self.usd -= sendMoney
-                                        sql1 = f"Update users Set usd = {self.usd} where idusers = {idu}"
-                                        self.mycursor.execute(sql1)
-                                        self.mycursor.execute(f"Select usd from users where id = {data[3]}")
-                                        sentMoney = self.mycursor.fetchone()
-                                        print(f"{sendMoney} dollar(s) is sent successfully\n")
-                                        senMoney = "%s" % (sentMoney) # I apply this structure first
-                                        sendMoney += float(senMoney) 
-                                        sql2 = f"Update users Set usd = {sendMoney} where id = {data[3]}"
-                                        self.mycursor.execute(sql2)
-                                    else:
-                                        print("Your balance is not enough to transfer\n")
-                                        self.interface(self.idn)
-                                else:
-                                    print("Going back to the main screen\n")
-                                    self.interface(self.idn)
-                            else:
-                                print("Respective user do NOT have USD account to accept any balance\n")
-                                self.interface(self.idn)
-                    if(bool == False):
-                        print("There is no such registered identity number\n")
-                        self.interface(self.idn)
-                    elif(str(checkBalance) != "(1,)"):
-                        print("Respective user does NOT have USD account to accept currency\n")
+                    self.transferCurrency("USD", "dollar", self.usd, "usd", "isusd", False)
 
                 elif(go == "3" and self.eur > 0 and self.iseur == True):
-                    idu = self.idn + 1
-                    print("Please type type identity number of the user to send EUR")
-                    toUser = input("Identity Number: ")
-                    print("")
-                    bool = False
-                    for data in self.database:
-                        if(toUser == str(data[3])):
-                            self.mycursor.execute(f"Select iseur from users where id = {data[3]}")
-                            checkBalance = self.mycursor.fetchone()
-                            bool = True
-                            ismoney = False
-                            if(str(checkBalance) == "(1,)"):
-                                while(ismoney == False):
-                                    try:
-                                        sendMoney = float(input("EUR: "))
-                                        print("")
-                                        if(isinstance(sendMoney, float) and sendMoney >= 0):
-                                            ismoney = True
-                                        else:           
-                                            print("Please type a positive value to operate")
-                                    except:
-                                        print("")
-                                        print("Please type numerical values only")
-
-                                if(sendMoney != 0):
-                                    if(sendMoney <= self.eur):
-                                        self.eur -= sendMoney
-                                        sql1 = f"Update users Set eur = {self.eur} where idusers = {idu}"
-                                        self.mycursor.execute(sql1)
-                                        self.mycursor.execute(f"Select eur from users where id = {data[3]}")
-                                        sentMoney = self.mycursor.fetchone()
-                                        print(f"{sendMoney} euro(s) is sent successfully\n")
-                                        senMoney = "%s" % (sentMoney)
-                                        sendMoney += float(senMoney) 
-                                        sql2 = f"Update users Set eur = {sendMoney} where id = {data[3]}"
-                                        self.mycursor.execute(sql2)
-                                    else:
-                                        print("Your balance is not enough to transfer\n")
-                                        self.interface(self.idn)
-                                else:
-                                    print("Going back to the main screen\n")
-                                    self.interface(self.idn)
-                            else:
-                                print("Respective user do NOT have EUR account to accept any balance\n")
-                                self.interface(self.idn)
-                    if(bool == False):
-                        print("There is no such registered identity number\n")
-                        self.interface(self.idn)
-                    elif(str(checkBalance) != "(1,)"):
-                        print("Respective user does NOT have EUR account to accept currency\n")
+                    self.transferCurrency("EUR", "euro", self.eur, "eur", "iseur", False)
                         
         else:
             print("There is no money in any of your currency account to transfer\nGoing back to the main screen\n")
@@ -932,6 +807,61 @@ class BankCore:
             print("There is an error of ", err)
         finally:
             self.mydb.close()
+
+
+    def transferCurrency(self, moneytype, moneyunit, money, lmoney, ismoneyy, tlpass):
+        idu = self.idn + 1
+        print(f"Please type identity number of the user to send {moneytype}")
+        toUser = input("Identity Number: ")
+        print("")
+
+        bool = False
+        for data in self.database:
+            if(toUser == str(data[3])):
+                self.mycursor.execute(f"Select {ismoneyy} from users where id = {data[3]}")
+                checkBalance = self.mycursor.fetchone()
+                bool = True
+                ismoney = False
+                if(str(checkBalance) == "(1,)" or tlpass == True): # couldn't convert checkBalance boolean, found a way like this
+                    while(ismoney == False):
+                        try:
+                            sendMoney = float(input(f"{moneytype}: "))
+                            print("")
+                            if(isinstance(sendMoney, float) and sendMoney >= 0):
+                                ismoney = True
+                            else:           
+                                print("Please type a positive value to operate")
+                        except:
+                            print("")
+                            print("Please type numerical values only")
+                    
+                    if(sendMoney != 0):
+                        if(sendMoney <= money):
+                            money -= sendMoney
+                            sql1 = f"Update users Set {lmoney} = {money} where idusers = {idu}"
+                            self.mycursor.execute(sql1)
+                            self.mycursor.execute(f"Select {lmoney} from users where id = {data[3]}")
+                            sentMoney = self.mycursor.fetchone()
+                            print(f"{sendMoney} {moneyunit}(s) is sent successfully\n")
+                            senMoney = "%s" % (sentMoney) # I apply this structure first
+                            sendMoney += float(senMoney) 
+                            sql2 = f"Update users Set {lmoney} = {sendMoney} where id = {data[3]}"
+                            self.mycursor.execute(sql2)
+                        else:
+                            print("Your balance is not enough to transfer\n")
+                            self.interface(self.idn)
+                    else:
+                        print("Going back to the main screen\n")
+                        self.interface(self.idn)
+                else:
+                    print(f"Respective user do NOT have {moneytype} account to accept any balance\n")
+                    self.interface(self.idn)
+        if(bool == False):
+            print("There is no such registered identity number\n")
+            self.interface(self.idn)
+        elif(str(checkBalance) != "(1,)" and tlpass == False):
+            print(f"Respective user does NOT have {moneytype} account to accept currency\n")
+
 
 #-----Execution-----#
 

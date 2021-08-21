@@ -1,3 +1,17 @@
+- With 10th commit, I split all currency methods even if they can be written in
+one method with parameters. I did that since the input that user type doesn't 
+return corresponding currency  value. It is better to apply currency method within
+one method. Try to merge them later.
+
+- Report of mySQL behaviour:
+    Each variable can get one value for each run. If any of variables assigned as twice or more,
+    first value is erased and second one is assigned as real value. Briefly, if any of variables assigned once,
+    other assignments overwrites to the same value. As an example in a single run, No: A balance has 100 tl. It 
+    sends No: B balance 100 tl and it is set zero. However, No: A balance can send up to 100 tl to No: C balance 
+    and No: B balance remains the same. Try to fix this issue. If each assingment is used at most once, there is 
+    no problem. This circumstances is valid for all the variables that contains changeable values.
+
+
 - After 30 commits I started to work on different computer. Therefore, each commit can be as
 same as the total line in code. However, the commit messages show the addition for respective
 code.
